@@ -1,0 +1,58 @@
+{
+  "name": "zylemini-pwa",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "dev:debug": "cross-env DEBUG=vite:* vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "dependencies": {
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "@reduxjs/toolkit": "^1.9.5",
+    "react-redux": "^8.1.2",
+    "redux-persist": "^6.0.0",
+    "redux-saga": "^1.2.3",
+    "react-router-dom": "^6.20.0",
+    "sql.js": "^1.10.3",
+    "axios": "^1.4.0",
+    "firebase": "^10.7.0",
+    "workbox-window": "^7.0.0",
+    "react-native-web": "^0.19.10",
+    "@mui/material": "^5.15.0",
+    "@mui/icons-material": "^5.15.0",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "i18next": "^23.4.6",
+    "react-i18next": "^13.0.3",
+    "moment": "^2.29.4",
+    "jwt-decode": "^3.1.2",
+    "@googlemaps/js-api-loader": "^1.16.2",
+    "recharts": "^2.10.0",
+    "react-icons": "^5.0.0",
+    "jspdf": "^2.5.1",
+    "html2canvas": "^1.4.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "eslint": "^8.54.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.4",
+    "typescript": "^5.0.4",
+    "vite": "^5.0.0",
+    "vite-plugin-pwa": "^0.17.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
+
