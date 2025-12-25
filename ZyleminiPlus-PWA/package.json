@@ -2,7 +2,7 @@
   "name": "zylemini-pwa",
   "version": "1.0.0",
   "type": "module",
-  "private": true,
+  "private": true, 
   "scripts": {
     "dev": "vite",
     "dev:debug": "cross-env DEBUG=vite:* vite",
