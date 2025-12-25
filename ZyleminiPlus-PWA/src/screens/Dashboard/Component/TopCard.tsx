@@ -48,6 +48,7 @@ interface props {
   AttendanceEnd?: boolean;
   AttendanceDayEnd?: any;
   defaultDistributorId?: string | number;
+  onMenuPress?: () => void;
 }
 
 function TopCard(props: props) {
@@ -59,6 +60,7 @@ function TopCard(props: props) {
     AttendanceMarked,
     AttendanceEnd,
     AttendanceDayEnd,
+    onMenuPress,
   } = props;
   
   const { t } = useTranslation();
@@ -210,8 +212,7 @@ function TopCard(props: props) {
         >
           <IconButton
             onClick={() => {
-              // Web: Toggle side menu (implement drawer)
-              console.log('Toggle side menu');
+              onMenuPress?.();
             }}
             sx={{ color: Colors.white }}
           >

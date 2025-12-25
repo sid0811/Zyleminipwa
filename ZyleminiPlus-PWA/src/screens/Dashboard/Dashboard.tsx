@@ -1,6 +1,6 @@
 // Web-adapted Dashboard screen - Simplified version
 import React, { useEffect, useState } from 'react';
-import { Box } from '@mui/material';
+import { Box, Drawer } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import moment from 'moment';
 
@@ -71,11 +71,45 @@ import { NotificationKeys } from '../../constants/asyncStorageKeys';
 import useCheckAppStateCurrent from '../../hooks/useCheckAppStateCurrent';
 import { requestUserPermission } from '../../notifications/notificationsUtils';
 import TeamPerformanceReport from './ManagerDashboard/TeamPerformanceReport';
+import SideMenuList from '../SideMenu/SideMenuList';
+import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
   const { isNetConnected } = useNetInfo();
   const { appStateVisible } = useCheckAppStateCurrent();
-  const { navigation } = { navigation: null }; // Web: No navigation prop needed
+  const navigate = useNavigate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  
+  const toggleDrawer = (open: boolean) => {
+    setDrawerOpen(open);
+  };
+
+  // Create navigation adapter for SideMenuList (converts React Router to React Navigation-like API)
+  const navigationAdapter = {
+    navigate: (screenName: string, params?: any) => {
+      // Close drawer when navigating
+      toggleDrawer(false);
+      
+      // Convert ScreenName enum values to routes
+      const routeMap: Record<string, string> = {
+        [ScreenName.SHOPS]: '/shops',
+        [ScreenName.POD]: '/pod',
+        [ScreenName.DATACOLLECTION]: '/datacollection',
+        [ScreenName.DATACARDS]: '/datacards',
+        [ScreenName.ORDERS]: '/orders',
+        [ScreenName.CREATEMEETONE]: '/activity',
+        [ScreenName.COLLECTIONS]: '/collections',
+        [ScreenName.SURVEYTABNAV]: '/surveys',
+        [ScreenName.RESOURCES]: '/resources',
+        [ScreenName.REPORTS]: '/reports',
+        [ScreenName.ADVACEREPORTMAIN]: '/advance-reports',
+        [ScreenName.SOS]: '/sos',
+      };
+      
+      const route = routeMap[screenName] || `/${screenName.toLowerCase()}`;
+      navigate(route, { state: params });
+    },
+  };
   const {
     syncFlag,
     isParentUser,
@@ -524,7 +558,21 @@ function Dashboard() {
         AttendanceMarked={AttendanceIn}
         AttendanceEnd={AttendanceOut}
         AttendanceDayEnd={dayUserEnd}
+        onMenuPress={() => toggleDrawer(true)}
       />
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => toggleDrawer(false)}
+        PaperProps={{
+          sx: {
+            width: '100%',
+            maxWidth: '400px',
+          },
+        }}
+      >
+        <SideMenuList navigation={navigationAdapter} />
+      </Drawer>
       <CustomSafeView>
         {isMultiDivision && (
           <Box

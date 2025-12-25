@@ -35,7 +35,6 @@ export const postNDAConsentData = async (
     },
   );
 
-  
   return response.data;
 };
 

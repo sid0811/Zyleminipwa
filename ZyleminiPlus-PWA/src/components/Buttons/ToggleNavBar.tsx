@@ -2,9 +2,12 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Box, Tabs, Tab, useMediaQuery, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useGlobleAction } from '../../redux/actionHooks/useGlobalAction';
 import CustomSafeView from '../GlobalComponent/CustomSafeView';
 import Icon from '../Icon/Icon';
+import CustomFAB from '../FAB/CustomFAB';
+import { FABOptions } from '../../utility/FabOptions';
 import { isAccessControlProvided } from '../../utility/utils';
 import {
   AccessControlKeyConstants,
@@ -51,6 +54,7 @@ const ToggleNavBar: React.FC<ToggleNavBarProps> = ({
 }) => {
   const { getAccessControlSettings } = useGlobleAction();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -80,6 +84,28 @@ const ToggleNavBar: React.FC<ToggleNavBarProps> = ({
     () => navItems.find((item) => item.id === activeTab)?.component,
     [navItems, activeTab]
   );
+
+  const renderFAB = () => {
+    if (
+      isAccessControlProvided(
+        getAccessControlSettings,
+        AccessControlKeyConstants.FAB_DASHBOARD,
+      ) &&
+      DEFAULT_TAB_NAMES.includes(activeTab)
+    ) {
+      return (
+        <CustomFAB
+          options={FABOptions(t, navigate).filter(option =>
+            isAccessControlProvided(
+              getAccessControlSettings,
+              option.accessKeyValue,
+            ),
+          )}
+        />
+      );
+    }
+    return null;
+  };
 
   // Responsive icon and font sizes
   const iconSize = isMobile ? 18 : isTablet ? 20 : 24;
@@ -168,6 +194,7 @@ const ToggleNavBar: React.FC<ToggleNavBarProps> = ({
       <CustomSafeView isScrollView={true}>
         {ActiveComponent}
       </CustomSafeView>
+      {renderFAB()}
     </Box>
   );
 };
