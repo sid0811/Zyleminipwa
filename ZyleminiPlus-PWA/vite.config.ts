@@ -281,6 +281,6 @@ export default defineConfig({
       }
     }
   },
-  base: process.env.BASE_URL || '/zyleminipwa',
+  base: process.env.BASE_URL || '/',
 });
 
