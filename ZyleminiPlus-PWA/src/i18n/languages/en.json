@@ -1,0 +1,28 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit"
+  },
+  "Alerts": {
+    "AlertNoInternetTitle": "No Internet Connection",
+    "AlertNoInternetMsg": "Please check your internet connection and try again.",
+    "AlertUseGetDataMsg": "Data fetched successfully"
+  },
+  "Login": {
+    "title": "Login",
+    "username": "Username",
+    "password": "Password",
+    "clientCode": "Client Code",
+    "loginButton": "Login"
+  }
+}
+

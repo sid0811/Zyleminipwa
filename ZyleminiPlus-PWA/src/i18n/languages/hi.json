@@ -1,0 +1,28 @@
+{
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "success": "सफल",
+    "cancel": "रद्द करें",
+    "ok": "ठीक है",
+    "save": "सहेजें",
+    "delete": "हटाएं",
+    "edit": "संपादित करें",
+    "back": "वापस",
+    "next": "अगला",
+    "submit": "जमा करें"
+  },
+  "Alerts": {
+    "AlertNoInternetTitle": "कोई इंटरनेट कनेक्शन नहीं",
+    "AlertNoInternetMsg": "कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।",
+    "AlertUseGetDataMsg": "डेटा सफलतापूर्वक प्राप्त किया गया"
+  },
+  "Login": {
+    "title": "लॉगिन",
+    "username": "उपयोगकर्ता नाम",
+    "password": "पासवर्ड",
+    "clientCode": "क्लाइंट कोड",
+    "loginButton": "लॉगिन"
+  }
+}
+

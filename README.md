@@ -1,2 +1,0 @@
-# Zyleminipwa
-PWA app
