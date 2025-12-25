@@ -30,27 +30,15 @@ export const postAuthLogin = async (headers: any) => {
     throw new Error(errorMsg);
   }
   
-  // IMPORTANT: In production, use full URL directly (preserves header case, no CORS if server allows)
-  // In development, try full URL first (if CORS allowed), fallback to proxy if CORS error
+  // IMPORTANT: In production, use Vercel proxy to avoid CORS issues
+  // In development, use Vite proxy (relative path)
   const isDevelopment = import.meta.env.DEV;
-  let finalBaseURL: string;
+  const fullURL = baseURL + AUTH_ENDPOINTS.LOGIN_EP;
   
-  // For now, always use full URL to preserve header case
-  // If CORS error occurs, we'll need to use proxy (but headers will be lowercased)
-  // In production/staging, full URL should work without CORS issues
-  finalBaseURL = baseURL;
-  
-  if (isDevelopment) {
-    console.log('🔐 [LoginAPICalls] Development mode - using full URL (may get CORS, but headers preserve case)');
-    console.log('💡 [LoginAPICalls] If CORS error, consider testing in staging/production');
-  } else {
-    console.log('🔐 [LoginAPICalls] Production mode - using full URL:', finalBaseURL);
-  }
-  
-  const fullURL = finalBaseURL + AUTH_ENDPOINTS.LOGIN_EP;
-  console.log('🔐 [LoginAPICalls] BASE_URL:', finalBaseURL);
+  console.log('🔐 [LoginAPICalls] BASE_URL:', baseURL);
   console.log('🔐 [LoginAPICalls] Endpoint:', AUTH_ENDPOINTS.LOGIN_EP);
   console.log('🔐 [LoginAPICalls] Full URL:', fullURL);
+  console.log('🔐 [LoginAPICalls] Is development:', isDevelopment);
   
   // Validate URL contains expected pattern
   if (!fullURL.includes('WINDSRBV1V4') && !fullURL.includes('WINDSR')) {
@@ -60,27 +48,60 @@ export const postAuthLogin = async (headers: any) => {
   console.log('🔐 [LoginAPICalls] Headers being sent:', JSON.stringify(headers, null, 2));
   console.log('🔐 [LoginAPICalls] authheader in headers:', headers?.authheader ? 'PRESENT (length: ' + headers.authheader.length + ')' : 'MISSING');
   
-  // Create axios instance (similar to the snippet you shared)
-  // This will use proxy in development (relative path) or direct URL in production
-  const apiClient = axios.create({
-    baseURL: finalBaseURL,
-    timeout: 500000,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  let response;
   
-  // Make request - proxy will handle CORS in development
-  const response = await apiClient.post(AUTH_ENDPOINTS.LOGIN_EP, null, {
-    headers,
-    // transformRequest: Convert null to empty string to avoid "null" string
-    transformRequest: [(data) => {
-      if (data === null || data === undefined) {
-        return ''; // Empty string = no body, Content-Length: 0
-      }
-      return data;
-    }],
-  });
+  if (isDevelopment) {
+    // Development: Use relative path to trigger Vite proxy
+    console.log('🔐 [LoginAPICalls] Development mode - using Vite proxy');
+    try {
+      const url = new URL(baseURL);
+      const relativePath = url.pathname + AUTH_ENDPOINTS.LOGIN_EP;
+      console.log('🔐 [LoginAPICalls] Using relative path for proxy:', relativePath);
+      
+      const apiClient = axios.create({
+        baseURL: relativePath,
+        timeout: 500000,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      response = await apiClient.post('', null, {
+        headers,
+        transformRequest: [(data) => {
+          if (data === null || data === undefined) {
+            return '';
+          }
+          return data;
+        }],
+      });
+    } catch (error: any) {
+      console.error('❌ [LoginAPICalls] Proxy request failed, trying direct URL:', error);
+      throw error;
+    }
+  } else {
+    // Production: Use Vercel serverless function proxy to avoid CORS
+    console.log('🔐 [LoginAPICalls] Production mode - using Vercel proxy');
+    
+    const apiClient = axios.create({
+      baseURL: '/api/proxy',
+      timeout: 500000,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-target-url': fullURL, // Pass target URL in header
+      },
+    });
+    
+    response = await apiClient.post('', null, {
+      headers,
+      transformRequest: [(data) => {
+        if (data === null || data === undefined) {
+          return '';
+        }
+        return data;
+      }],
+    });
+  }
   
   console.log('✅ [LoginAPICalls] Response received');
   console.log('✅ [LoginAPICalls] Status:', response?.status);

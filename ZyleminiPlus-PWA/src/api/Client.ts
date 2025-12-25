@@ -34,8 +34,8 @@ const createApiClient = async (): Promise<AxiosInstance> => {
   console.log('🔐 [Client.ts] LogUserId:', userId || 'NOT SET');
   console.log('🔐 [Client.ts] JWT Token:', jwtToken ? 'PRESENT (length: ' + jwtToken.length + ')' : 'NOT SET');
 
-  // In development, use proxy to avoid CORS issues
-  // In production, use the actual API URL
+  // In development, use Vite proxy to avoid CORS issues
+  // In production, use Vercel serverless function proxy to avoid CORS
   const isDevelopment = import.meta.env.DEV;
   
   // Ensure baseURL is not undefined, null, or the string "undefined"
@@ -55,37 +55,36 @@ const createApiClient = async (): Promise<AxiosInstance> => {
     throw new Error(errorMsg);
   }
   
-  // If in development and we have a base URL, convert to relative path for proxy
+  // Store original URL for proxy interceptor
+  const originalBaseURL = finalBaseURL;
+  
+  // If in development, convert to relative path for Vite proxy
+  // If in production, use Vercel proxy endpoint
   if (isDevelopment && finalBaseURL) {
     try {
       const url = new URL(finalBaseURL);
       // Extract the path and use it as relative URL to trigger Vite proxy
-      // This will route through vite.config.ts proxy configuration
       const pathWithQuery = url.pathname + (url.search || '');
       console.log('🔐 [Client.ts] Parsed URL - host:', url.host, 'path:', pathWithQuery);
       console.log('🔐 [Client.ts] Full original URL:', finalBaseURL);
       
       if (pathWithQuery.startsWith('/ZyleminiPlusCoreURLAuth')) {
         finalBaseURL = pathWithQuery; // Use relative path to trigger proxy
-        console.log('🔀 [Client.ts] Using proxy for API requests. Original:', baseURL, '→ Proxy:', finalBaseURL);
-        console.log('🔀 [Client.ts] VERIFIED: Proxy path matches expected pattern');
-        
-        // Store original URL in a way the proxy can access it
-        // We'll use axios interceptor to add header
+        console.log('🔀 [Client.ts] Using Vite proxy for API requests. Original:', baseURL, '→ Proxy:', finalBaseURL);
       } else {
         console.warn('⚠️ [Client.ts] Path does not start with /ZyleminiPlusCoreURLAuth:', pathWithQuery);
       }
     } catch (e) {
       console.warn('⚠️ [Client.ts] Could not parse base URL:', e);
-      console.warn('⚠️ [Client.ts] BASE_URL value:', finalBaseURL);
-      // If URL parsing fails, check if it's already a relative path
       if (finalBaseURL.startsWith('/')) {
-        // Already a relative path, use as-is
         console.log('🔀 [Client.ts] Using relative path for proxy:', finalBaseURL);
-      } else {
-        console.warn('⚠️ [Client.ts] Could not parse base URL for proxy, using as-is:', finalBaseURL);
       }
     }
+  } else if (!isDevelopment) {
+    // Production: Use Vercel proxy endpoint
+    finalBaseURL = '/api/proxy';
+    console.log('🔀 [Client.ts] Production mode - using Vercel proxy:', finalBaseURL);
+    console.log('🔀 [Client.ts] Original URL will be passed via interceptor:', originalBaseURL);
   }
   
   console.log('✅ [Client.ts] Final baseURL for axios client:', finalBaseURL);
@@ -99,24 +98,35 @@ const createApiClient = async (): Promise<AxiosInstance> => {
     },
   });
 
-  // Add request interceptor to include JWT token in all requests
+  // Add request interceptor to include JWT token and handle proxy routing
   client.interceptors.request.use(
     async (config) => {
       console.log('🔐 [Client.ts Interceptor] Request interceptor triggered');
       console.log('🔐 [Client.ts Interceptor] Request URL:', config.url);
       console.log('🔐 [Client.ts Interceptor] Base URL:', config.baseURL);
-      console.log('🔐 [Client.ts Interceptor] Full URL:', (config.baseURL || '') + (config.url || ''));
       console.log('🔐 [Client.ts Interceptor] Method:', config.method);
-      console.log('🔐 [Client.ts Interceptor] Request data:', config.data);
       
-      // In development, if using proxy, we don't need to add x-original-url
-      // The proxy router function handles routing based on the path
-      // Adding custom headers might cause the server to reject the request
-      if (isDevelopment && config.baseURL?.startsWith('/ZyleminiPlusCoreURLAuth')) {
+      // In production, if using Vercel proxy, we need to pass the target URL
+      if (!isDevelopment && config.baseURL === '/api/proxy') {
         const currentBaseURL = await cacheStorage.getString(UserPreferenceKeys.BASE_URL);
-        console.log('🔐 [Client.ts Interceptor] Using proxy, original URL:', currentBaseURL);
-        console.log('🔐 [Client.ts Interceptor] Config baseURL:', config.baseURL);
-        // Don't add x-original-url - let the proxy handle routing based on path
+        const fullTargetURL = currentBaseURL + (config.url || '');
+        
+        console.log('🔀 [Client.ts Interceptor] Production proxy mode');
+        console.log('🔀 [Client.ts Interceptor] Original BASE_URL:', currentBaseURL);
+        console.log('🔀 [Client.ts Interceptor] Request path:', config.url);
+        console.log('🔀 [Client.ts Interceptor] Full target URL:', fullTargetURL);
+        
+        // Set headers for proxy
+        config.headers = config.headers || {};
+        config.headers['x-target-url'] = fullTargetURL;
+        config.headers['x-target-method'] = (config.method || 'GET').toUpperCase();
+        
+        // Clear the URL since proxy will use x-target-url
+        config.url = '';
+      } else if (isDevelopment && config.baseURL?.startsWith('/ZyleminiPlusCoreURLAuth')) {
+        // Development: Vite proxy handles routing based on path
+        console.log('🔀 [Client.ts Interceptor] Development proxy mode');
+        console.log('🔀 [Client.ts Interceptor] Using Vite proxy with path:', config.baseURL + (config.url || ''));
       }
       
       // Add JWT token to headers if available (but don't override if already set)
@@ -135,7 +145,7 @@ const createApiClient = async (): Promise<AxiosInstance> => {
       
       // Log final headers for debugging
       console.log('🔐 [Client.ts Interceptor] Final headers:', JSON.stringify(config.headers, null, 2));
-      console.log('🔐 [Client.ts Interceptor] Header keys:', Object.keys(config.headers));
+      console.log('🔐 [Client.ts Interceptor] Final URL:', (config.baseURL || '') + (config.url || ''));
       
       return config;
     },
