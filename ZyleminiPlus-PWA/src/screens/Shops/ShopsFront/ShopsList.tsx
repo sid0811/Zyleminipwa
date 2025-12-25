@@ -273,8 +273,7 @@ function ShopList() {
         });
     } else
       window.alert(
-        t('Shops.GeofenceAlertTitleNoData') || 'No Data',
-        t('Shops.GeofenceAlertSubTitleNoData') || 'No geofence data available',
+        `${t('Shops.GeofenceAlertTitleNoData') || 'No Data'}: ${t('Shops.GeofenceAlertSubTitleNoData') || 'No geofence data available'}`
       );
   };
 
@@ -341,9 +340,9 @@ function ShopList() {
               borderRadius: '12px',
               width: '88%',
               height: '56px',
-              paddingRight: '12px',
               backgroundColor: Colors.white,
-              paddingHorizontal: '16px',
+              paddingLeft: '16px',
+              paddingRight: '16px',
               justifyContent: 'center',
               alignContent: 'center',
               alignSelf: 'center',

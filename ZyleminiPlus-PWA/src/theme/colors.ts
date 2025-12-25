@@ -44,6 +44,13 @@ export const Colors = {
   invoiceLabel: '#4CAF50', // Green
   otherLabel: '#FF9800', // Orange
   podLabel: '#2196F3', // Blue
+  // Dialog colors
+  warning: '#FF9800', // Orange
+  error: '#E74C3C', // Red
+  success: '#4CAF50', // Green
+  textSecondary: '#696969',
+  textPrimary: '#151515', // Primary text color
+  borderColor: '#E6DFDF', // Border color (same as border)
 };
 export const ActivityColor = {
   activityColor: '#150B3D',

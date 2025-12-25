@@ -1,99 +1,118 @@
-// Web-adapted AddNewShop1 screen - Structured placeholder
-// TODO: Complete implementation with form validation, image capture, and navigation
-import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Typography, Button, TextField } from '@mui/material';
+import { useEffect, useState, useCallback } from 'react';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Grid,
+  IconButton,
+  ImageList,
+  ImageListItem,
+} from '@mui/material';
+import { CameraAlt, NavigateNext, Delete } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation as useRouterLocation } from 'react-router-dom';
-import { Colors } from '../../../theme/colors';
+
+import useLocation from '../../../hooks/useLocation';
 import { useGlobleAction } from '../../../redux/actionHooks/useGlobalAction';
 import { useLoginAction } from '../../../redux/actionHooks/useLoginAction';
+import { Colors } from '../../../theme/colors';
+import {
+  getBeatData,
+  getDistributorData,
+  getOutletArrayFromShop,
+  getOutletArrayRoute,
+  getRouteData,
+} from '../../../database/WebDatabaseHelpers';
+import Header from '../../../components/Header/Header';
+import { ScreenName } from '../../../constants/screenConstants';
 import { useShopAction } from '../../../redux/actionHooks/useShopAction';
-import useLocation from '../../../hooks/useLocation';
+import {
+  writeErrorLog,
+  getAppOrderId,
+} from '../../../utility/utils';
 import CustomSafeView from '../../../components/GlobalComponent/CustomSafeView';
 import Dropdown from '../../../components/Dropdown/Dropdown';
-import TextInput from '../../../components/TextInput/TextInput';
-import { ShopImgs } from '../../../constants/AllImages';
-import { ScreenName } from '../../../constants/screenConstants';
-import {
-  getAppOrderId,
-  writeErrorLog,
-  filePaths,
-  picCaputredFrom,
-} from '../../../utility/utils';
-// TODO: Import database functions when available
-// import { getBeatData, getDistributorData, getOutletArrayFromShop, getOutletArrayRoute, getRouteData } from '../../../database/WebDatabaseHelpers';
-// TODO: Import components when available
-// import Header from '../../../components/Header/Header';
-// import DeviceCamera from '../../../components/Camera/DeviceCamera';
+import useDialog from '../../../hooks/useDialog';
+import ConfirmDialog from '../../../components/Dialog/ConfirmDialog';
 
-interface ANS1props {
-  navigation?: any;
-  route?: {
-    params?: any;
-  };
-}
-
-export const newparty = {
-  Height: '8vh',
-  Width: '87vw',
-};
-
-function AddNewShop1(props: ANS1props) {
+function AddNewShop1() {
+  const { selectedShopData } = useShopAction();
   const navigate = useNavigate();
   const routerLocation = useRouterLocation();
-  const { selectedShopData } = useShopAction();
+
   const { isDarkMode } = useGlobleAction();
   const { userId } = useLoginAction();
   const { t } = useTranslation();
   const { latitude, longitude } = useLocation();
+  const { dialogState, showDialog, hideDialog, handleConfirm } = useDialog();
 
-  const [outletArray, setOutletArray] = useState<any[]>([]);
-  const [searchedOutlet, setSearchedOutlet] = useState<any[]>([]);
-  const [routeData, setRouteData] = useState<any[]>([]);
+  const [outletArray, setOutletArray] = useState<any>([]);
+  const [routeData, setRouteData] = useState<any>([]);
   const [selectedRoute, setSelectedRoute] = useState<any>(null);
-  const [distData, setDistData] = useState<any[]>([]);
+  const [distData, setDistData] = useState<any>([]);
   const [selectedDist, setSelectedDist] = useState<any>(null);
   const [outletname, Setoutletname] = useState('');
   const [ownername, Setownername] = useState('');
   const [Address, SetAddress] = useState('');
   const [loadedImages, setLoadedImages] = useState<string[]>([]);
-  const [modalVisible, setModalVisible] = useState(false);
   const [Beatid, setBeatid] = useState<any>('');
-  const [fileList, setfileList] = useState<any[]>([]);
+  const [fileList, setfileList] = useState<any>([]);
   const [appOrderId, setAppOrderId] = useState('');
+  const [capturedImages, setCapturedImages] = useState<File[]>([]);
 
   useEffect(() => {
     takeDataFromDB();
     getId();
-    // TODO: fetchImagesFromDirectory(appOrderId);
-  }, [modalVisible]);
+  }, []);
 
   async function getId() {
-    setAppOrderId(await getAppOrderId(userId));
+    const id = await getAppOrderId(userId);
+    setAppOrderId(id);
   }
 
   const takeDataFromDB = async () => {
     try {
-      // TODO: Implement database calls
-      // const routeData: any = await getRouteData(userId);
-      // setRouteData(routeData);
-      // const outletArray = await getOutletArrayRoute(routeData[0]?.RouteID);
-      // setOutletArray(outletArray);
-      // setSelectedRoute(routeData[0]);
-      // setBeatid(routeData[0]?.RouteID);
-      // const DistData: any = await getDistributorData(userId);
-      // setDistData(DistData);
-      // setSelectedDist(DistData[0]);
-      console.log('AddNewShop1: takeDataFromDB - TODO: Implement database calls');
+      // Route
+      const routeData: any = await getRouteData(userId);
+      setRouteData(routeData);
+
+      if (routeData.length > 0) {
+        const outletArray = await getOutletArrayRoute(routeData[0]?.RouteID);
+        setOutletArray(outletArray);
+        setSelectedRoute(routeData[0]);
+        setBeatid(routeData[0]?.RouteID);
+      }
+
+      // Dist
+      const DistData: any = await getDistributorData(userId);
+      setDistData(DistData);
+      if (DistData.length > 0) {
+        setSelectedDist(DistData[0]);
+      }
     } catch (error) {
       writeErrorLog('takeDataFromDB', error);
+      console.log('error while take data from db -->', error);
     }
   };
 
+  const handleImageCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const newImages = Array.from(files);
+      setCapturedImages([...capturedImages, ...newImages]);
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setCapturedImages(capturedImages.filter((_, i) => i !== index));
+  };
+
   const nextPress = () => {
-    if (Beatid != '' && outletname != '' && ownername != '' && Address !== '') {
+    if (Beatid && outletname && ownername && Address) {
       try {
-        navigate(ScreenName.ADDNEWSHOPS2, {
+        navigate(`/${ScreenName.ADDNEWSHOPS2}`, {
           state: {
             Beatid,
             outletname,
@@ -101,7 +120,7 @@ function AddNewShop1(props: ANS1props) {
             Address,
             latitude,
             longitude,
-            fileList,
+            fileList: capturedImages,
             appOrderId,
           },
         });
@@ -109,7 +128,12 @@ function AddNewShop1(props: ANS1props) {
         writeErrorLog('nextPress', error);
       }
     } else {
-      window.alert(t('Alerts.AlertPleaseSelectAllField') || 'Please Select All Field');
+      showDialog(
+        t('Validation Error'),
+        t('Please fill all required fields'),
+        () => {},
+        'warning'
+      );
     }
   };
 
@@ -117,9 +141,8 @@ function AddNewShop1(props: ANS1props) {
     setSelectedRoute(val);
     setBeatid(val.RouteID);
     try {
-      // TODO: const outletArray = await getOutletArrayRoute(val?.RouteID);
-      // setOutletArray(outletArray);
-      console.log('AddNewShop1: onBeatChange - TODO: Implement route change logic');
+      const outletArray = await getOutletArrayRoute(val?.RouteID);
+      setOutletArray(outletArray);
     } catch (error) {
       writeErrorLog('onBeatChange', error);
     }
@@ -127,147 +150,204 @@ function AddNewShop1(props: ANS1props) {
 
   return (
     <CustomSafeView edges={['bottom']}>
-      {/* TODO: <Header title={t('AddNewParty.AddNewPartyTitle')} navigation={navigation} /> */}
-      <Box sx={{ flex: 1 }}>
-        <CustomSafeView isScrollView={true}>
-          <Box sx={{ padding: '20px' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'row', marginBottom: '1vh' }}>
-              <Typography sx={{ color: Colors.DarkBrown, fontWeight: 'bold' }}>
-                {t('AddNewParty.selectbeat') || 'Select Beat'}
+      <Header
+        title={t('AddNewParty.AddNewPartyTitle')}
+        navigation={{ goBack: () => navigate(-1) }}
+      />
+      
+      <Box sx={{ flex: 1, p: 3, pb: 10 }}>
+        <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+          {/* Select Beat/Route */}
+          <Box sx={{ mb: 3 }}>
+            <Typography sx={{ mb: 1, fontWeight: 600, color: Colors.textPrimary }}>
+              {t('AddNewParty.selectbeat')}
+              <Typography component="span" sx={{ color: 'red', ml: 0.5 }}>
+                *
               </Typography>
-              <Typography sx={{ color: 'red' }}>*</Typography>
-            </Box>
+            </Typography>
             <Dropdown
               data={routeData}
               label={'RouteName'}
               selectedListIsScrollView={true}
               placeHolder={'Select Route'}
               selectedValue={selectedRoute?.RouteName}
-              onPressItem={(val: any) => onBeatChange(val)}
+              onPressItem={(val: any) => {
+                onBeatChange(val);
+              }}
             />
+          </Box>
 
-            <Box sx={{ display: 'flex', flexDirection: 'row', marginTop: '2vh', marginBottom: '1vh' }}>
-              <Typography sx={{ color: Colors.DarkBrown, fontWeight: 'bold' }}>
-                {t('AddNewParty.OutletName') || 'Outlet Name'}
+          {/* Outlet Name */}
+          <Box sx={{ mb: 3 }}>
+            <Typography sx={{ mb: 1, fontWeight: 600, color: Colors.textPrimary }}>
+              {t('AddNewParty.OutletName')}
+              <Typography component="span" sx={{ color: 'red', ml: 0.5 }}>
+                *
               </Typography>
-              <Typography sx={{ color: 'red' }}>*</Typography>
-            </Box>
-            <TextInput
+            </Typography>
+            <TextField
+              fullWidth
               value={outletname}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => Setoutletname(e.target.value)}
-              sx={{ marginVertical: '1.5vh' }}
+              onChange={(e) => Setoutletname(e.target.value)}
+              placeholder={t('Enter outlet name')}
+              variant="outlined"
             />
+          </Box>
 
-            <Box sx={{ display: 'flex', flexDirection: 'row', marginTop: '2vh', marginBottom: '1vh' }}>
-              <Typography sx={{ color: Colors.DarkBrown, fontWeight: 'bold' }}>
-                {t('AddNewParty.ownername') || 'Owner Name'}
+          {/* Owner Name */}
+          <Box sx={{ mb: 3 }}>
+            <Typography sx={{ mb: 1, fontWeight: 600, color: Colors.textPrimary }}>
+              {t('AddNewParty.ownername')}
+              <Typography component="span" sx={{ color: 'red', ml: 0.5 }}>
+                *
               </Typography>
-              <Typography sx={{ color: 'red' }}>*</Typography>
-            </Box>
-            <TextInput
+            </Typography>
+            <TextField
+              fullWidth
               value={ownername}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                if (/^[A-Za-z ]*$/.test(e.target.value)) {
-                  Setownername(e.target.value);
+              onChange={(e) => {
+                const txt = e.target.value;
+                if (/^[A-Za-z ]*$/.test(txt)) {
+                  Setownername(txt);
                 }
               }}
-              sx={{ marginVertical: '1.5vh' }}
+              placeholder={t('Enter owner name')}
+              variant="outlined"
             />
-
-            <Box sx={{ display: 'flex', flexDirection: 'row', marginTop: '2vh', marginBottom: '1vh' }}>
-              <Typography sx={{ color: Colors.DarkBrown, fontWeight: 'bold' }}>
-                {t('AddNewParty.address') || 'Address'}
-              </Typography>
-              <Typography sx={{ color: 'red' }}>*</Typography>
-            </Box>
-            <TextInput
-              value={Address}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => SetAddress(e.target.value)}
-              sx={{ marginVertical: '1.5vh' }}
-            />
-
-            <Box sx={{ display: 'flex', flexDirection: 'row', marginTop: '2vh', marginBottom: '1vh' }}>
-              <Typography sx={{ color: Colors.DarkBrown, fontWeight: 'bold' }}>
-                {t('AddNewParty.addlocation') || 'Location'}
-              </Typography>
-              <Typography sx={{ color: 'red' }}>*</Typography>
-            </Box>
-            <Box
-              sx={{
-                border: '1px solid #E6DFDF',
-                borderRadius: '8px',
-                padding: '10px',
-                backgroundColor: Colors.white,
-                minHeight: '8vh',
-              }}
-            >
-              <Typography sx={{ fontFamily: 'Proxima Nova, sans-serif', fontSize: '14px' }}>
-                {longitude.toString() + ', ' + latitude.toString()}
-              </Typography>
-            </Box>
-
-            <Box sx={{ display: 'flex', flexDirection: 'row', marginTop: '2vh', marginBottom: '1vh' }}>
-              <Typography sx={{ color: Colors.DarkBrown, fontWeight: 'bold' }}>
-                {t('AddNewParty.addpictures') || 'Add Pictures'}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Button
-                onClick={() => setModalVisible(true)}
-                sx={{
-                  marginTop: '5vh',
-                  marginLeft: '2vw',
-                  marginHorizontal: '5vw',
-                }}
-              >
-                <img
-                  src={ShopImgs.Camera}
-                  alt="Camera"
-                  style={{ height: '4vh', width: '4vw' }}
-                />
-              </Button>
-              {loadedImages?.map((item, index) => (
-                <img key={index} src={item} alt={`Shop ${index}`} style={{ height: '10vh', width: '10vw', margin: '5px' }} />
-              ))}
-            </Box>
           </Box>
-        </CustomSafeView>
 
-        <Button
-          onClick={nextPress}
-          sx={{
-            position: 'fixed',
-            bottom: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            backgroundColor: Colors.mainBackground,
-            color: Colors.white,
-            padding: '10px 40px',
-            borderRadius: '8px',
-            textTransform: 'none',
-            '&:hover': {
-              backgroundColor: Colors.mainBackground,
-              opacity: 0.9,
-            },
-          }}
-        >
-          <Typography sx={{ fontFamily: 'Proxima Nova, sans-serif', fontSize: '16px' }}>
-            {t('AddNewParty.next') || 'Next'}
-          </Typography>
-        </Button>
+          {/* Address */}
+          <Box sx={{ mb: 3 }}>
+            <Typography sx={{ mb: 1, fontWeight: 600, color: Colors.textPrimary }}>
+              {t('AddNewParty.address')}
+              <Typography component="span" sx={{ color: 'red', ml: 0.5 }}>
+                *
+              </Typography>
+            </Typography>
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
+              value={Address}
+              onChange={(e) => SetAddress(e.target.value)}
+              placeholder={t('Enter address')}
+              variant="outlined"
+            />
+          </Box>
 
-        {/* TODO: <DeviceCamera
-          isModalOpen={modalVisible}
-          onPress={(val: boolean) => setModalVisible(val)}
-          routeToStore={selectedShopData?.shopId}
-          capturedFrom={picCaputredFrom.ADD_NEW_SHOP}
-          appOrderId={appOrderId}
-          shopId=""
-        /> */}
+          {/* Location */}
+          <Box sx={{ mb: 3 }}>
+            <Typography sx={{ mb: 1, fontWeight: 600, color: Colors.textPrimary }}>
+              {t('AddNewParty.addlocation')}
+              <Typography component="span" sx={{ color: 'red', ml: 0.5 }}>
+                *
+              </Typography>
+            </Typography>
+            <TextField
+              fullWidth
+              value={`${longitude.toString()}, ${latitude.toString()}`}
+              disabled
+              variant="outlined"
+              sx={{
+                '& .MuiInputBase-input.Mui-disabled': {
+                  WebkitTextFillColor: Colors.textPrimary,
+                },
+              }}
+            />
+          </Box>
+
+          {/* Add Pictures */}
+          <Box sx={{ mb: 3 }}>
+            <Typography sx={{ mb: 1, fontWeight: 600, color: Colors.textPrimary }}>
+              {t('AddNewParty.addpictures')}
+            </Typography>
+            
+            <Button
+              variant="outlined"
+              component="label"
+              startIcon={<CameraAlt />}
+              fullWidth
+              sx={{ mb: 2, py: 1.5 }}
+            >
+              {t('Capture/Upload Images')}
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                multiple
+                capture="environment"
+                onChange={handleImageCapture}
+              />
+            </Button>
+
+            {capturedImages.length > 0 && (
+              <ImageList cols={3} gap={8}>
+                {capturedImages.map((image, index) => (
+                  <ImageListItem key={index} sx={{ position: 'relative' }}>
+                    <img
+                      src={URL.createObjectURL(image)}
+                      alt={`Captured ${index + 1}`}
+                      style={{
+                        width: '100%',
+                        height: 120,
+                        objectFit: 'cover',
+                        borderRadius: 8,
+                      }}
+                    />
+                    <IconButton
+                      onClick={() => handleRemoveImage(index)}
+                      sx={{
+                        position: 'absolute',
+                        top: 4,
+                        right: 4,
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        },
+                      }}
+                      size="small"
+                    >
+                      <Delete fontSize="small" color="error" />
+                    </IconButton>
+                  </ImageListItem>
+                ))}
+              </ImageList>
+            )}
+          </Box>
+
+          {/* Next Button */}
+          <Button
+            fullWidth
+            variant="contained"
+            size="large"
+            endIcon={<NavigateNext />}
+            onClick={nextPress}
+            sx={{
+              mt: 2,
+              py: 1.5,
+              backgroundColor: Colors.primary,
+              '&:hover': {
+                backgroundColor: Colors.primaryDark,
+              },
+            }}
+          >
+            {t('Next')}
+          </Button>
+        </Paper>
       </Box>
+
+      <ConfirmDialog
+        open={dialogState.open}
+        onClose={hideDialog}
+        onConfirm={handleConfirm}
+        title={dialogState.title}
+        message={dialogState.message}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        variant={dialogState.variant}
+      />
     </CustomSafeView>
   );
 }
 
 export default AddNewShop1;
-

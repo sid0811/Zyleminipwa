@@ -55,8 +55,7 @@ const ReportCard = ({ navigation }: Props) => {
       }
     } else {
       window.alert(
-        t('Alerts.InternetConnectionUnavailable') || 'Internet Connection Unavailable',
-        t('Alerts.IntenetConnectionUnavailableMsg') || 'Please check your internet connection'
+        `${t('Alerts.InternetConnectionUnavailable') || 'Internet Connection Unavailable'}: ${t('Alerts.IntenetConnectionUnavailableMsg') || 'Please check your internet connection'}`
       );
     }
   };

@@ -1,6 +1,6 @@
 // Web-adapted useGlobalLocationRef
 import { useEffect, useRef } from 'react';
-import Store from '../../store';
+import Store from '../store';
 
 type NormalizedLocation = { latitude: number; longitude: number };
 

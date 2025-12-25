@@ -72,7 +72,11 @@ const ListCardView = (props: listViewProps) => {
 
   const handleNavigate = () => {
     if (latitude && longitude) {
-      openMap(latitude, longitude);
+      openMap({ 
+        lat: parseFloat(latitude), 
+        lng: parseFloat(longitude), 
+        label: party || outletInfo || 'Location' 
+      });
     }
   };
 

@@ -1,5 +1,6 @@
 // Web-adapted Icon component using react-icons
 import React from 'react';
+import { Box, SxProps, Theme } from '@mui/material';
 import * as AntDesignIcons from 'react-icons/ai';
 import * as MaterialIcons from 'react-icons/md';
 // Note: Material Community Icons are not available as a separate package in react-icons
@@ -36,9 +37,10 @@ interface IconProps {
   family: Family;
   color?: string;
   size?: number;
+  sx?: SxProps<Theme>;
 }
 
-const Icon: React.FC<IconProps> = ({ name, family, color = '#000000', size = 20 }) => {
+const Icon: React.FC<IconProps> = ({ name, family, color = '#000000', size = 20, sx }) => {
   const getIconComponent = () => {
     // Convert icon name to PascalCase for react-icons
     const iconName = name
@@ -114,7 +116,13 @@ const Icon: React.FC<IconProps> = ({ name, family, color = '#000000', size = 20 
     return <MaterialIcons.MdHelpOutline color={color} size={size} />;
   };
 
-  return <span style={{ display: 'inline-flex', alignItems: 'center' }}>{getIconComponent()}</span>;
+  const iconElement = <span style={{ display: 'inline-flex', alignItems: 'center' }}>{getIconComponent()}</span>;
+  
+  if (sx) {
+    return <Box sx={sx}>{iconElement}</Box>;
+  }
+  
+  return iconElement;
 };
 
 export default Icon;

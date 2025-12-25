@@ -612,6 +612,19 @@ export const writeErrorLog = async (funcName: string, err: any) => {
   }
 };
 
+// General LOGS
+export const writeLog = async (category: string, message: string) => {
+  const curDateTime = await getCurrentDateTime();
+  try {
+    await executeSqlWrite(
+      `INSERT INTO uses_log (menu_keys, uses_datetime, is_sync) VALUES (?, ?, ?)`,
+      [`${category}: ${message}`, curDateTime, 'False']
+    );
+  } catch (error) {
+    console.error('Error writing log:', error);
+  }
+};
+
 // Activity LOGS
 export const writeActivityLog = async (activity: string) => {
   const curDateTime = await getCurrentDateTime();

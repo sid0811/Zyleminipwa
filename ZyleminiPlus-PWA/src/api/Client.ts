@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import cacheStorage from '../localstorage/secureStorage';
 import { UserPreferenceKeys } from '../constants/asyncStorageKeys';
 

@@ -1,7 +1,9 @@
-// Web-adapted SyncProgressOverlay component
+/**
+ * SyncProgressOverlay Component - PWA Version
+ * Displays sync progress with progress bar
+ */
 import React from 'react';
 import { Box, Typography, LinearProgress, Paper } from '@mui/material';
-import { Colors } from '../../theme/colors';
 
 interface SyncProgressOverlayProps {
   visible: boolean;
@@ -20,88 +22,82 @@ const SyncProgressOverlay: React.FC<SyncProgressOverlayProps> = ({
 }) => {
   if (!visible) return null;
 
-  const percentage = (progress.current / progress.total) * 100;
+  const progressPercentage = (progress.current / progress.total) * 100;
 
   return (
     <Box
       sx={{
+        height: isSideMenu ? '40%' : '100%',
         position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
-        bottom: 0,
+        bottom: isSideMenu ? '50%' : 0,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        zIndex: 1000,
+        zIndex: 1300,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        ...(isSideMenu && {
-          bottom: '50vh',
-        }),
       }}
     >
       <Paper
         elevation={8}
         sx={{
-          backgroundColor: Colors.white,
-          borderRadius: '12px',
-          padding: '24px',
-          minWidth: '80vw',
-          maxWidth: '400px',
-          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)',
+          mx: 2,
+          p: 3,
+          minWidth: { xs: '90%', sm: '500px' },
+          maxWidth: '600px',
+          borderRadius: 2,
         }}
       >
-        <Box sx={{ mb: 2 }}>
-          <Box
+        {/* Progress Text */}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 2,
+          }}
+        >
+          <Typography
+            variant="body1"
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              mb: 1,
+              flex: 1,
+              fontWeight: 500,
+              mr: 1,
+              fontSize: { xs: '0.9rem', sm: '1rem' },
             }}
           >
-            <Typography
-              variant="body1"
-              sx={{
-                flex: 1,
-                fontSize: '16px',
-                color: Colors.black,
-                fontWeight: 500,
-                mr: 2,
-              }}
-            >
-              {progress.message}
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                fontSize: '16px',
-                color: Colors.mainBackground,
-                fontWeight: 'bold',
-              }}
-            >
-              {Math.round(percentage)}%
-            </Typography>
-          </Box>
-          <LinearProgress
-            variant="determinate"
-            value={percentage}
+            {progress.message}
+          </Typography>
+          <Typography
+            variant="body1"
             sx={{
-              height: '8px',
-              borderRadius: '4px',
-              backgroundColor: '#E0E0E0',
-              '& .MuiLinearProgress-bar': {
-                backgroundColor: Colors.mainBackground,
-                borderRadius: '4px',
-              },
+              fontWeight: 'bold',
+              color: 'primary.main',
+              fontSize: { xs: '0.9rem', sm: '1rem' },
             }}
-          />
+          >
+            {progress.current}%
+          </Typography>
         </Box>
+
+        {/* Progress Bar */}
+        <LinearProgress
+          variant="determinate"
+          value={progressPercentage}
+          sx={{
+            height: 10,
+            borderRadius: 1,
+            backgroundColor: '#E0E0E0',
+            '& .MuiLinearProgress-bar': {
+              borderRadius: 1,
+            },
+          }}
+        />
       </Paper>
     </Box>
   );
 };
 
 export default SyncProgressOverlay;
-
-

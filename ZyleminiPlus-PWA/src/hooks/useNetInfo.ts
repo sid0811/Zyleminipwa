@@ -24,7 +24,9 @@ export const useNetInfo = () => {
   }, []);
 
   return {
-    isNetConnected
+    isNetConnected,
+    isConnected: isNetConnected,
+    isInternetReachable: isNetConnected,
   };
 };
 

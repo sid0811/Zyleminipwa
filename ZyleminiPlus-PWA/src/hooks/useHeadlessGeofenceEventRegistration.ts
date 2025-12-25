@@ -81,8 +81,15 @@ const useHeadlessGeofenceEventRegistration = () => {
     centerLng: number,
     radius: number,
   ): boolean => {
-    const distance = calculateDistance(latitude, longitude, centerLat, centerLng);
-    return distance <= radius;
+    try {
+      const distance = calculateDistance(latitude, longitude, centerLat, centerLng);
+      if (distance === undefined) {
+        return false;
+      }
+      return distance <= radius;
+    } catch {
+      return false;
+    }
   };
 
   const checkUpdatedInFenceOutlets = async (

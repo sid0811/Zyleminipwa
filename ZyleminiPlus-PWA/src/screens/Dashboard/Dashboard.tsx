@@ -341,8 +341,8 @@ function Dashboard() {
 
   const lastSyncCheck = async () => {
     setTimeout(async () => {
-      const dataa = await getLastSync();
-      setLastSync(dataa?.Value || 'Never');
+      const dataa = (await getLastSync() as unknown as any[]);
+      setLastSync((dataa?.[0] as any)?.Value || 'Never');
     }, 2000);
   };
 
@@ -424,8 +424,8 @@ function Dashboard() {
     }
 
     setTimeout(() => {
-      getLastSync().then((dataa) => {
-        setLastSync(dataa?.Value || 'Never');
+      getLastSync().then((dataa: any) => {
+        setLastSync(((dataa as unknown as any[])?.[0] as any)?.Value || 'Never');
       });
     }, 300);
 

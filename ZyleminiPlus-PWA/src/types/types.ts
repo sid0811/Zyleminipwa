@@ -503,6 +503,10 @@ export interface LedgerVoucherDetail {
   'T.P.No.': string;
   'T.P.Date': string;
   'Inv.Amt.': string;
+  Voucherno?: string;
+  Date?: string;
+  Billno?: string;
+  Amount?: string;
 }
 export interface LedgerReceiptDetail {
   Receipt_No: string;
@@ -510,11 +514,16 @@ export interface LedgerReceiptDetail {
   ChequeNo: string;
   Adj_Amt: string;
   LedgerName: string;
+  Receiptno?: string;
+  Amount?: string;
 }
 
 export interface LedgerTotal {
   Total: string;
   Outstanding: string;
+  Totalinvoice?: string;
+  Totalreceipt?: string;
+  Balance?: string;
 }
 
 export interface claimPODListData {

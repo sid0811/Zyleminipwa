@@ -16,6 +16,8 @@ export const enum UserPreferenceKeys {
   LOGIN_USER_CRED = 'password', //i.e:- password
   LOGIN_USER_DEVICE_ID = 'deviceId', //i.e:- deviceId
   LOGIN_USER_JWT_TOKEN = 'token', //i.e:- user jwt token
+  AUTH_TOKEN = 'auth_token', // Authentication token for API calls
+  LAST_SYNC_TIME = 'last_sync_time', // Last sync timestamp
 }
 
 export const enum NotificationKeys {

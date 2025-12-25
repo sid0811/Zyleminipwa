@@ -257,7 +257,7 @@ export const useAuthentication = () => {
           cacheStorage.set(UserPreferenceKeys.LOGIN_CLIENT_CODE, SCode);
           cacheStorage.set(
             UserPreferenceKeys.LOGIN_USER_ID,
-            decodedResponse?.UserId,
+            decodedResponse?.UserId || '',
           );
           cacheStorage.set(UserPreferenceKeys.LOGIN_LOGIN_ID, user);
           cacheStorage.set(UserPreferenceKeys.LOGIN_USER_CRED, password);

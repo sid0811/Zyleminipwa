@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Box, IconButton, Typography, Paper } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { FABIcon } from '../../constants/AllImages';
+import { Colors } from '../../theme/colors';
 import { useGlobleAction } from '../../redux/actionHooks/useGlobalAction';
 import useLocation from '../../hooks/useLocation';
 import { ShopCheckOutAlertHandler } from '../../screens/Order/Functions/Validations';

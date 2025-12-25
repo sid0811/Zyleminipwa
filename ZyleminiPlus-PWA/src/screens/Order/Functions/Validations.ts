@@ -102,4 +102,9 @@ export const weeklyOffOrderAlertHandler = (
   }
 };
 
+export const filterITEMSEQUENCEName = (ItemName: string): string => {
+  const index = ItemName.indexOf('}');
+  return index >= 0 ? ItemName.slice(index + 1) : ItemName;
+};
+
 

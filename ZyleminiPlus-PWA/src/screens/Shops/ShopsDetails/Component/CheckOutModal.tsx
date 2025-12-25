@@ -1,23 +1,28 @@
-// Web-adapted CheckOutModal component - preserving exact UI and logic
-import React, { useState } from 'react';
-import { Dialog, DialogContent, Button, TextField, Typography, Box } from '@mui/material';
+import { useState } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Box,
+  Typography,
+  Avatar,
+} from '@mui/material';
+import { LocationOn } from '@mui/icons-material';
 import { Colors } from '../../../../theme/colors';
-import { DashboardImg } from '../../../../constants/AllImages';
 import { useTranslation } from 'react-i18next';
-import TextInput from '../../../../components/TextInput/TextInput';
 import { removeSpecialCharacters } from '../../../../utility/utils';
 
-interface CheckOutModalProps {
+interface props {
+  onPress: any;
+  onConfirm: any;
   isModalOpen: boolean;
-  onPress: (val: boolean) => void;
-  onConfirm: (remark: string) => void;
 }
 
-const CheckOutModal: React.FC<CheckOutModalProps> = ({
-  isModalOpen,
-  onPress,
-  onConfirm,
-}) => {
+function CheckOutModal(props: props) {
+  const { isModalOpen, onPress, onConfirm } = props;
   const { t } = useTranslation();
   const [remark, setRemark] = useState('');
 
@@ -35,148 +40,109 @@ const CheckOutModal: React.FC<CheckOutModalProps> = ({
     <Dialog
       open={isModalOpen}
       onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
       PaperProps={{
         sx: {
-          backgroundColor: Colors.white,
-          borderRadius: '10px',
-          width: '100vw',
-          maxWidth: '100vh',
-          height: 'auto',
-          margin: '2vh',
-          alignItems: 'center',
-          boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.25)',
+          borderRadius: 3,
         },
       }}
     >
-      <DialogContent sx={{ width: '100%', padding: '20px' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
-          <Typography
-            sx={{
-              marginBottom: '20px',
-              textAlign: 'center',
-              fontWeight: 'bold',
-              color: Colors.PinkColor,
-              fontSize: '16px',
-              marginTop: '4vh',
-            }}
-          >
-            {t('Common.EnterYourRemark') || 'Enter Your Remark'}
-          </Typography>
-          <Box sx={{ marginBottom: '20px' }}>
-            <img
-              src={DashboardImg.locationIn}
-              alt="Location"
-              style={{ height: '5vh', width: '8vw', alignSelf: 'center' }}
-            />
-          </Box>
-          <Box
-            sx={{
-              width: '14vw',
-              height: '4vh',
-              borderRadius: '150px',
-              alignSelf: 'center',
-              backgroundColor: Colors.DarkBrown,
-              opacity: 0.05,
-              marginTop: '-5vh',
-              transform: 'scaleX(2)',
-            }}
-          />
-        </Box>
-
-        <Box>
-          <Typography
-            sx={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              fontWeight: '700',
-              color: Colors.DarkBrown,
-              fontSize: '2vw',
-            }}
-          >
-            {t('Common.AddRemarks') || 'Add Remarks'}
-          </Typography>
-          <Box sx={{ marginTop: '1vh' }} />
-
-          <TextInput
-            multiline={true}
-            value={remark}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setRemark(removeSpecialCharacters(e.target.value));
-            }}
-            sx={{
-              width: '70vw',
-              height: '15vh',
-              borderColor: 'gray',
-              borderWidth: '1px',
-              borderRadius: '10px',
-              marginTop: '1vh',
-            }}
-          />
-        </Box>
-
-        <Box
+      <DialogTitle sx={{ textAlign: 'center', pb: 1 }}>
+        <Typography
+          variant="h6"
           sx={{
-            width: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginVertical: '10px',
+            color: Colors.DarkBrown,
+            fontWeight: 700,
+            mb: 2,
           }}
         >
-          <Button
-            onClick={handleConfirm}
+          {t('Common.EnterYourRemark')}
+        </Typography>
+        
+        {/* Location Icon */}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            mb: 2,
+          }}
+        >
+          <Avatar
             sx={{
-              backgroundColor: '#2FC36E',
-              borderRadius: '24px',
-              width: '132px',
-              height: '40px',
-              marginBottom: '2vh',
-              textAlign: 'center',
-              alignSelf: 'center',
-              justifyContent: 'center',
-              textTransform: 'none',
-              '&:hover': {
-                backgroundColor: '#2FC36E',
-                opacity: 0.9,
-              },
+              width: 80,
+              height: 80,
+              bgcolor: Colors.primary,
+              boxShadow: 3,
             }}
           >
-            <Typography
-              sx={{
-                color: Colors.white,
-                padding: '5px',
-                fontWeight: 'bold',
-                textAlign: 'center',
-                fontSize: '12px',
-              }}
-            >
-              {t('Common.Confirm') || 'Confirm'}
-            </Typography>
-          </Button>
-
-          <Button
-            onClick={handleClose}
-            sx={{
-              textTransform: 'none',
-            }}
-          >
-            <Typography
-              sx={{
-                color: '#362828',
-                padding: '5px',
-                fontWeight: 'bold',
-                textAlign: 'center',
-                fontSize: '12px',
-                marginTop: '0.5vh',
-              }}
-            >
-              {t('Common.Cancel') || 'Cancel'}
-            </Typography>
-          </Button>
+            <LocationOn sx={{ fontSize: 48 }} />
+          </Avatar>
         </Box>
+      </DialogTitle>
+
+      <DialogContent>
+        <Typography
+          sx={{
+            color: Colors.DarkBrown,
+            fontWeight: 700,
+            fontSize: 14,
+            mb: 1,
+          }}
+        >
+          {t('Common.AddRemarks')}
+        </Typography>
+        
+        <TextField
+          fullWidth
+          multiline
+          rows={4}
+          value={remark}
+          onChange={(e) => setRemark(removeSpecialCharacters(e.target.value))}
+          placeholder={t('Enter your remarks here...')}
+          variant="outlined"
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 2,
+            },
+          }}
+        />
       </DialogContent>
+
+      <DialogActions sx={{ px: 3, pb: 3 }}>
+        <Button
+          onClick={handleClose}
+          variant="outlined"
+          sx={{
+            flex: 1,
+            py: 1.5,
+            borderRadius: 2,
+            textTransform: 'none',
+            fontWeight: 600,
+          }}
+        >
+          {t('Common.Cancel')}
+        </Button>
+        <Button
+          onClick={handleConfirm}
+          variant="contained"
+          sx={{
+            flex: 1,
+            py: 1.5,
+            borderRadius: 2,
+            backgroundColor: Colors.primary,
+            textTransform: 'none',
+            fontWeight: 600,
+            '&:hover': {
+              backgroundColor: Colors.primaryDark,
+            },
+          }}
+        >
+          {t('Common.Confirm')}
+        </Button>
+      </DialogActions>
     </Dialog>
   );
-};
+}
 
 export default CheckOutModal;
-
