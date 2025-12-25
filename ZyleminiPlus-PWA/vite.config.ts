@@ -218,7 +218,7 @@ export default defineConfig({
       // Proxy API requests to avoid CORS issues in development
       // Login endpoint now uses direct axios (bypasses proxy) - see LoginAPICalls.ts
       // Matches any path starting with /ZyleminiPlusCoreURLAuth (with any suffix)
-      '^/ZyleminiPlusCoreURLAuth': {
+      '^/ZyleminiPlusCoreURLAuth': ({
         target: 'https://zyleminiplus.com', // Default, but router will override
         changeOrigin: true,
         secure: true,
@@ -235,6 +235,7 @@ export default defineConfig({
         // CRITICAL: Use selfHandleResponse to have more control over headers
         selfHandleResponse: false, // Keep false, but we'll handle headers in proxyReq
         // Use router function to dynamically route based on request path
+        // Type assertion needed because Vite's ProxyOptions type doesn't include router from http-proxy-middleware
         router: function(req: any) {
           const path = req.url || req.path || '';
           // Check if path contains WINDSR to route to windsr.in
@@ -264,7 +265,7 @@ export default defineConfig({
             }
           });
         }
-      }
+      } as any)
     }
   },
   build: {
@@ -279,6 +280,7 @@ export default defineConfig({
         }
       }
     }
-  }
+  },
+  base: process.env.BASE_URL || '/zyleminipwa',
 });
 
