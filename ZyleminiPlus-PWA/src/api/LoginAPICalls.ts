@@ -35,6 +35,8 @@ export const postAuthLogin = async (headers: any) => {
   const isDevelopment = import.meta.env.DEV;
   const fullURL = baseURL + AUTH_ENDPOINTS.LOGIN_EP;
   
+  // Version check - if you see this log, new code is running
+  console.log('🔐 [LoginAPICalls] CODE VERSION: v2.0 - Using Proxy');
   console.log('🔐 [LoginAPICalls] BASE_URL:', baseURL);
   console.log('🔐 [LoginAPICalls] Endpoint:', AUTH_ENDPOINTS.LOGIN_EP);
   console.log('🔐 [LoginAPICalls] Full URL:', fullURL);
