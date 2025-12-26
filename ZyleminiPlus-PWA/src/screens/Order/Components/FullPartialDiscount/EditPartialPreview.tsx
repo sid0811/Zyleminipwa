@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { getTableDiscount } from '../../../../database/WebDatabaseHelpers';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigation } from '@react-navigation/native';
 import { ScreenName } from '../../../../constants/screenConstants';
 
 interface Props {
@@ -20,10 +20,11 @@ function EditPartialPreview({
   fromCreateNOrder,
   onChangeInItem = undefined,
   SideFlag = undefined,
-  navigation,
+  navigation: navProp,
 }: Props) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const nav = useNavigation();
+  const navigation = navProp || nav;
   const [data, setData] = useState<any[]>([]);
 
   useEffect(() => {
@@ -43,12 +44,12 @@ function EditPartialPreview({
   const EditAlertHandler = (item: any, index: number) => {
     if (window.confirm(t('Alerts.AlertEditOrderMsg'))) {
       if (fromCreateNOrder) {
-        navigate(`/${ScreenName.EDIT_PARTIAL_DISCOUNT}`, {
-          state: { orderID: orderID1, id: item.id },
+        navigation.navigate(ScreenName.EDIT_PARTIAL_DISCOUNT, {
+          propsData: { orderID: orderID1, id: item.id },
         });
       } else {
-        navigate(`/${ScreenName.EDIT_PARTIAL_SIDE_DISCOUNT}`, {
-          state: { orderID: orderID1, id: item.id, entityid: entityid },
+        navigation.navigate(ScreenName.EDIT_PARTIAL_SIDE_DISCOUNT, {
+          propsData: { orderID: orderID1, id: item.id, entityid: entityid },
         });
       }
     }

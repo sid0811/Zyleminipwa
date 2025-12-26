@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { ExpandMore, Search, ChevronRight } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigation } from '@react-navigation/native';
 
 import { useLoginAction } from '../../redux/actionHooks/useLoginAction';
 import {
@@ -42,7 +42,7 @@ const allproducts = ['Brand', 'SKU', 'SIZE'];
 const OutletPerformanceReport1 = () => {
   const { t } = useTranslation();
   const { userId } = useLoginAction();
-  const navigate = useNavigate();
+  const navigation = useNavigation();
 
   // Party Selection
   const [party, setParty] = useState<getOutletParty_OP_Report[]>([]);
@@ -159,8 +159,8 @@ const OutletPerformanceReport1 = () => {
       return;
     }
 
-    navigate(`/${ScreenName.OUTLET_PERFORMANCE2}`, {
-      state: {
+    navigation.navigate(ScreenName.OUTLET_PERFORMANCE2, {
+      propsData: {
         Criteria: selectedProduct,
         CustomerId: selectedParty.CustomerId,
         CriteriaId: criteriaId,
@@ -185,7 +185,7 @@ const OutletPerformanceReport1 = () => {
     return (
       <CustomSafeView edges={['bottom']}>
         <Header
-          navigation={{ goBack: () => navigate(-1) }}
+          navigation={{ goBack: () => navigation.goBack() }}
           title={t('OutletPerformanceReport.OutletPerformanceReportActionbarText')}
         />
         <LoadingSkeleton variant="form" count={5} />

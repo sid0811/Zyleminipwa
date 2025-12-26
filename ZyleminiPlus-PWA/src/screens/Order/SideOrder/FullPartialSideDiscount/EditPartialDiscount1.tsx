@@ -8,7 +8,7 @@ import {
   Checkbox,
   FormControlLabel,
 } from '@mui/material';
-import {useNavigate, useLocation} from 'react-router-dom';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import DashLine from '../../../CollectionModule/Components/DashLine';
 import {Colors} from '../../../../theme/colors';
 import {hp, wp, Dimen} from '../../../../utility/responsiveHelpers';
@@ -63,9 +63,9 @@ interface Props {
 
 const EditPartialDiscount1 = (props: Props) => {
   const {t} = useTranslation();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const routeParams = location.state || props.route?.params || {};
+  const navigation = useNavigation();
+  const route = useRoute();
+  const routeParams = props.route?.params || route.params || {};
   const {orderID, entityid, id} = routeParams; // orderID, id
   console.log('orderID, id -->', orderID, id, entityid);
 
@@ -902,7 +902,7 @@ const EditPartialDiscount1 = (props: Props) => {
     setApplyFlag(false);
     setApplyChanged(false);
     setSelectedDiscFor('');
-    navigate(-1);
+    navigation.goBack();
   }
 
   async function ApplyClickIF(orderID: string, id: number | string) {
@@ -1070,7 +1070,7 @@ const EditPartialDiscount1 = (props: Props) => {
     //   orderID,
     //   isInProcessOrder: true,
     // });
-    navigate(-1);
+    navigation.goBack();
   }
 
   // console.log('selectDiscountFor-->', SelectedDiscFor);
@@ -1375,7 +1375,7 @@ const EditPartialDiscount1 = (props: Props) => {
       setApplyFlag(false);
       setSelectedDiscFor('');
       setApplyChanged(false);
-      navigate(-1);
+      navigation.goBack();
     }
 
     // console.log("selectedDiscounts item-->", item);
@@ -2410,7 +2410,7 @@ const EditPartialDiscount1 = (props: Props) => {
 
           <Button
             onClick={() => {
-              navigate(-1);
+              navigation.goBack();
             }}
             sx={{textTransform: 'none'}}>
             <Box sx={styles.cancelBtnContainer}>

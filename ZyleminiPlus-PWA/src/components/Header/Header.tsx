@@ -1,15 +1,12 @@
 import React from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../theme/colors';
 import { hp, wp } from '../../utility/responsiveHelpers';
 
 interface HeaderProp {
-  navigation?: {
-    back?: () => void;
-    goBack?: () => void;
-  };
+  navigation?: any;
   title: string;
   flexValue?: number | undefined;
   isBackValidation?: boolean;
@@ -18,9 +15,9 @@ interface HeaderProp {
 }
 
 const Header: React.FC<HeaderProp> = (props) => {
-  const navigate = useNavigate();
+  const nav = useNavigation();
   const {
-    navigation,
+    navigation = nav,
     title,
     flexValue = undefined,
     isBackValidation = false,
@@ -31,12 +28,8 @@ const Header: React.FC<HeaderProp> = (props) => {
   const handleBackButtonPress = () => {
     if (isBackValidation && backBtnValidFunc) {
       backBtnValidFunc();
-    } else if (navigation?.back) {
-      navigation.back();
-    } else if (navigation?.goBack) {
-      navigation.goBack();
-    } else {
-      navigate(-1);
+    } else if (navigation?.canGoBack?.() !== false) {
+      navigation?.goBack();
     }
   };
 

@@ -56,9 +56,9 @@ interface Props {
 
 const EditFullOrderDiscount1 = (props: Props) => {
   const {t} = useTranslation();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const routeParams = location.state || props.route?.params || {};
+  const navigation = useNavigation();
+  const route = useRoute();
+  const routeParams = props.route?.params || route.params || {};
   const {orderID, entityid, id} = routeParams; // orderID, id
   console.log('props EditFullOrderDiscount side O-->', orderID, id);
   const {savedOrderID} = useOrderAction();

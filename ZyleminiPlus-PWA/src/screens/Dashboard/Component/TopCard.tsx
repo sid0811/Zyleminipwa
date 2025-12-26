@@ -36,7 +36,6 @@ import geofenceCache from '../../../localstorage/geofenceCache';
 import { useNetInfo } from '../../../hooks/useNetInfo';
 import { useSyncNowAttendance } from '../../../hooks/useSyncNowAttendance';
 import SyncProgressOverlay from '../../../components/Progress/SyncProgressOverlay';
-import { useNavigate } from 'react-router-dom';
 
 interface props {
   navigation?: any;
@@ -48,11 +47,11 @@ interface props {
   AttendanceEnd?: boolean;
   AttendanceDayEnd?: any;
   defaultDistributorId?: string | number;
-  onMenuPress?: () => void;
 }
 
 function TopCard(props: props) {
   const {
+    navigation,
     multiDivData,
     SelectedDivison,
     isDataSynced,
@@ -60,11 +59,9 @@ function TopCard(props: props) {
     AttendanceMarked,
     AttendanceEnd,
     AttendanceDayEnd,
-    onMenuPress,
   } = props;
   
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { latitude, longitude } = useLocation();
   const { userName, userId } = useLoginAction();
   const {
@@ -212,7 +209,7 @@ function TopCard(props: props) {
         >
           <IconButton
             onClick={() => {
-              onMenuPress?.();
+              navigation?.toggleDrawer();
             }}
             sx={{ color: Colors.white }}
           >

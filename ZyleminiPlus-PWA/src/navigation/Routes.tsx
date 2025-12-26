@@ -1,51 +1,46 @@
-import React from 'react';
-import { Routes as RouterRoutes, Route, Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from '../redux/store';
-import { ScreenName } from '../constants/screenConstants';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBrowserHistory } from '@react-navigation/web';
+import languageInitialize from '../i18n/i18n';
+import { useGlobleAction } from '../redux/actionHooks/useGlobalAction';
+import MainRouteStackNav from './MainRoute/MainRouteStack';
+import OnboardingStackNav from './OnBoardingStackNavigation/OnboardingStackNav';
 
-// Screens (will be created/adapted)
-import Login from '../screens/Login/Login';
-import Dashboard from '../screens/Dashboard/Dashboard';
-import Splash from '../screens/Splash/SplashScreen';
+// Create browser history for web navigation
+const history = createBrowserHistory();
 
 const Routes = () => {
-  const isLoggedin = useSelector((state: RootState) => 
-    state.globalReducer?.isLoggedin || false
-  );
+  const { isLoggedin } = useGlobleAction();
+  const [isBootReady, setIsBootReady] = useState(false);
 
-  // Show splash while checking auth state
-  const [isCheckingAuth, setIsCheckingAuth] = React.useState(true);
-
-  React.useEffect(() => {
-    // Check auth state from persisted store
-    // This will be set by Redux Persist
-    setTimeout(() => {
-      setIsCheckingAuth(false);
-    }, 1000);
+  useLayoutEffect(() => {
+    initializeAsyncValue();
   }, []);
 
-  if (isCheckingAuth) {
-    return <Splash />;
+  const initializeAsyncValue = async () => {
+    const bootInitalize = async () => {
+      await languageInitialize.languageInitialize();
+    };
+    bootInitalize().then(() => {
+      setIsBootReady(true);
+    });
+  };
+
+  if (!isBootReady) {
+    return null;
   }
 
   return (
-    <RouterRoutes>
-      {!isLoggedin ? (
-        <>
-          <Route path="/login" element={<Login />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </>
-      ) : (
-        <>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          {/* Add more routes as screens are migrated */}
-        </>
-      )}
-    </RouterRoutes>
+    <NavigationContainer
+      history={history}
+      onReady={() => {
+        // Navigation is ready
+        console.log('Navigation Container Ready');
+      }}
+    >
+      {isLoggedin ? <MainRouteStackNav /> : <OnboardingStackNav />}
+    </NavigationContainer>
   );
 };
 
 export default Routes;
-
