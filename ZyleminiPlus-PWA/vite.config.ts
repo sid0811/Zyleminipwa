@@ -13,6 +13,7 @@ export default defineConfig({
   plugins: [
     react({
       include: /\.(jsx|tsx|js|ts)$/,
+      jsxImportSource: '@emotion/react',
       babel: {
         plugins: [],
       },
@@ -44,6 +45,7 @@ export default defineConfig({
           }
         ]
       },
+      manifestFilename: 'manifest.json', // Generate as manifest.json instead of manifest.webmanifest
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         // Force update service worker on every deployment
@@ -292,7 +294,7 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'redux-vendor': ['@reduxjs/toolkit', 'react-redux', 'redux-persist', 'redux-saga'],
-          'ui-vendor': ['@mui/material', '@mui/icons-material']
+          'ui-vendor': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled']
         }
       }
     },
