@@ -4,11 +4,19 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 import https from 'https';
 import http from 'http';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      include: /\.(jsx|tsx|js|ts)$/,
+      babel: {
+        plugins: [],
+      },
+    }),
     VitePWA({
       registerType: 'prompt', // Changed to prompt for immediate updates
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
@@ -41,6 +49,11 @@ export default defineConfig({
         // Force update service worker on every deployment
         skipWaiting: true,
         clientsClaim: true,
+        // Suppress warnings in dev mode
+        mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+        // Don't precache source files in dev mode
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/sql\.js\.org\/.*/i,
@@ -67,7 +80,7 @@ export default defineConfig({
         ]
       },
       devOptions: {
-        enabled: true,
+        enabled: false, // Disable service worker in dev mode to avoid interference
         type: 'module'
       }
     }),
@@ -209,8 +222,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      'react-native': 'react-native-web'
-    }
+    },
+    conditions: ['web', 'browser', 'default'],
   },
   server: {
     port: 3000,
@@ -279,11 +292,26 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'redux-vendor': ['@reduxjs/toolkit', 'react-redux', 'redux-persist', 'redux-saga'],
-          'ui-vendor': ['@mui/material', '@mui/icons-material', 'react-native-web']
+          'ui-vendor': ['@mui/material', '@mui/icons-material']
         }
       }
+    },
+    commonjsOptions: {
+      transformMixedEsModules: true,
+      include: [/node_modules/],
+      // Ensure inline-style-prefixer CommonJS modules are transformed
+      strictRequires: false,
+      defaultIsModuleExports: true,
     }
   },
   base: '/',
+  optimizeDeps: {
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx',
+      },
+      target: 'es2020',
+    },
+  },
 });
 

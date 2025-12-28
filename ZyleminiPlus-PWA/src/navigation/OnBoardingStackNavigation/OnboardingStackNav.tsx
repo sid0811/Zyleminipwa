@@ -1,28 +1,40 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { screens } from './index';
 import { ScreenName } from '../../constants/screenConstants';
 import { useGlobleAction } from '../../redux/actionHooks/useGlobalAction';
+import { getRoutePath } from '../../constants/routePaths';
 
 export default function OnboardingStackNav() {
-  const OnboardingStack = createStackNavigator();
   const { isSplashShown } = useGlobleAction();
   console.log('isSplashShown -->', isSplashShown);
 
+  // Determine initial route
+  const initialRoute = isSplashShown ? ScreenName.SPLASH : ScreenName.LOGIN;
+
   return (
-    <OnboardingStack.Navigator
-      initialRouteName={isSplashShown ? ScreenName.SPLASH : ScreenName.LOGIN}>
+    <Routes>
       {screens.map((item, index) => {
+        const path = getRoutePath(item.name);
         return (
-          <OnboardingStack.Screen
+          <Route
             key={index.toString()}
-            name={item.name}
-            component={item.component}
-            options={item.options}
+            path={path}
+            element={<item.component />}
           />
         );
       })}
-    </OnboardingStack.Navigator>
+      {/* Default redirect to initial route */}
+      <Route 
+        path="/" 
+        element={<Navigate to={getRoutePath(initialRoute)} replace />} 
+      />
+      {/* Catch-all redirect */}
+      <Route 
+        path="*" 
+        element={<Navigate to={getRoutePath(initialRoute)} replace />} 
+      />
+    </Routes>
   );
 }
 

@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback, memo } from 'react';
 import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation as useRouterLocation } from 'react-router-dom';
+import { useNavigationCompat } from '../../../hooks/useNavigationCompat';
 
 import CustomSafeView from '../../../components/GlobalComponent/CustomSafeView';
 import { useGlobleAction } from '../../../redux/actionHooks/useGlobalAction';
@@ -19,7 +19,7 @@ import {
   getRouteData,
   getVisitcount,
 } from '../../../database/WebDatabaseHelpers';
-import { FABOptionShops } from '../../../utility/FabOptions';
+import { FABOptionsShops } from '../../../utility/FabOptions';
 import CardView from './Component/CardView';
 import ListCardView from './Component/ListCardView';
 import TopCard from './Component/TopCard';
@@ -41,8 +41,7 @@ import useCheckAppStateCurrent from '../../../hooks/useCheckAppStateCurrent';
 import { useGlobalLocationRef } from '../../../redux/actionHooks/useGlobalLocationRef';
 
 function ShopList() {
-  const navigate = useNavigate();
-  const routerLocation = useRouterLocation();
+  const navigation = useNavigationCompat();
   const { geofenceGlobalSettingsAction } = useGlobleAction();
   const {
     geofenceEvents,
@@ -126,7 +125,7 @@ function ShopList() {
 
   useEffect(() => {
     getVisitCount();
-  }, [routerLocation.pathname]);
+  }, []); // Removed routerLocation dependency as it's not needed with React Navigation
 
   function checkOutletInCircleForLatestUserLocation() {
     if (geofenceGlobalSettingsAction?.IsGeoFencingEnabled) {
@@ -264,12 +263,12 @@ function ShopList() {
   const onLocationIconPress = (called: number) => {
     if (shopListRouteWise != null && shopListRouteWise.length > 0) {
       if (called == 1)
-        navigate(`/${ScreenName.MAPVIEW_OUTLETS}`, {
-          state: { shopListRouteWise },
+        navigation.navigate(ScreenName.MAPVIEW_OUTLETS, {
+          propsData: { shopListRouteWise },
         });
       else
-        navigate(`/${ScreenName.MAPVIEW_OUTLETS_GEOFENCEVIEW}`, {
-          state: { shopListRouteWise },
+        navigation.navigate(ScreenName.MAPVIEW_OUTLETS_GEOFENCEVIEW, {
+          propsData: { shopListRouteWise },
         });
     } else
       window.alert(
@@ -374,7 +373,7 @@ function ShopList() {
           ))}
         </Box>
         <CustomFAB
-          options={FABOptionShops(t, navigate).filter((option) =>
+          options={FABOptionsShops(t, navigation).filter((option: any) =>
             isAccessControlProvided(
               getAccessControlSettings,
               option.accessKeyValue,

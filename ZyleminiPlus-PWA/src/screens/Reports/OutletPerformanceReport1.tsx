@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { ExpandMore, Search, ChevronRight } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigationCompat } from '../../hooks/useNavigationCompat';
 
 import { useLoginAction } from '../../redux/actionHooks/useLoginAction';
 import {
@@ -42,7 +42,7 @@ const allproducts = ['Brand', 'SKU', 'SIZE'];
 const OutletPerformanceReport1 = () => {
   const { t } = useTranslation();
   const { userId } = useLoginAction();
-  const navigation = useNavigation();
+  const navigation = useNavigationCompat();
 
   // Party Selection
   const [party, setParty] = useState<getOutletParty_OP_Report[]>([]);
@@ -185,7 +185,7 @@ const OutletPerformanceReport1 = () => {
     return (
       <CustomSafeView edges={['bottom']}>
         <Header
-          navigation={{ goBack: () => navigation.goBack() }}
+          navigation={navigation}
           title={t('OutletPerformanceReport.OutletPerformanceReportActionbarText')}
         />
         <LoadingSkeleton variant="form" count={5} />
@@ -195,10 +195,10 @@ const OutletPerformanceReport1 = () => {
 
   return (
     <CustomSafeView edges={['bottom']}>
-      <Header
-        navigation={{ goBack: () => navigate(-1) }}
-        title={t('OutletPerformanceReport.OutletPerformanceReportActionbarText')}
-      />
+        <Header
+          navigation={navigation}
+          title={t('OutletPerformanceReport.OutletPerformanceReportActionbarText')}
+        />
 
       <Box sx={{ p: 2, pb: 10 }}>
         {/* Select Outlet */}

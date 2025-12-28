@@ -44,7 +44,7 @@ import DataCollectionStep2 from '../../screens/DataCollection/DataCollectionStep
 
 // Sync Module (Available in PWA)
 import ExpandList from '../../screens/Sync/ExpandList';
-import Sos from '../../screens/Sync/Sos';
+import { Sos } from '../../screens/Sync/Sos';
 
 // Side Menu Info (Available in PWA)
 import AboutUs from '../../screens/SideMenu/DrawerInfo/AboutUs';

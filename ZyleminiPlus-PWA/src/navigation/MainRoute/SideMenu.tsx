@@ -1,6 +1,6 @@
-// Web-adapted SideMenu component for React Navigation Drawer
-import React, { memo, useState } from 'react';
-import { DrawerContentComponentProps } from '@react-navigation/drawer';
+// Web-adapted SideMenu component for React Router
+import React, { memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Typography, IconButton } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import SideMenuList from '../../screens/SideMenu/SideMenuList';
@@ -11,18 +11,32 @@ import Loader from '../../components/Loader/Loader';
 import { Colors } from '../../theme/colors';
 import { ScreenName } from '../../constants/screenConstants';
 import { globalImg, SideMenuImg } from '../../constants/AllImages';
+import { useDrawer } from '../../contexts/DrawerContext';
+import { getRoutePath } from '../../constants/routePaths';
+import { useNavigationCompat } from '../../hooks/useNavigationCompat';
 
-interface SideMenuProps extends DrawerContentComponentProps {}
-
-const SideMenu = (props: SideMenuProps) => {
-  const { navigation } = props;
+const SideMenu = () => {
+  const navigate = useNavigate();
+  const drawer = useDrawer();
   const { t } = useTranslation();
   const { enteredUserName } = useLoginAction();
   const { syncRefresh } = useGlobleAction();
   const { base64 } = useDashAction();
 
   const closeDrawer = () => {
-    navigation.toggleDrawer();
+    drawer.closeDrawer();
+  };
+  
+  // Create navigation compatibility object for SideMenuList
+  const navigation = useNavigationCompat();
+  
+  // Wrap navigation to close drawer after navigation
+  const navigationWithDrawerClose = {
+    ...navigation,
+    navigate: (screenName: ScreenName | string, params?: any) => {
+      navigation.navigate(screenName, params);
+      drawer.closeDrawer();
+    },
   };
 
   return (
@@ -98,7 +112,7 @@ const SideMenu = (props: SideMenuProps) => {
 
         {/* Menu List */}
         <Box sx={{ flex: 1, overflowY: 'auto' }}>
-          <SideMenuList navigation={navigation} />
+          <SideMenuList navigation={navigationWithDrawerClose} />
         </Box>
 
         {/* Footer Section */}
@@ -138,7 +152,7 @@ const SideMenu = (props: SideMenuProps) => {
             }}
           >
             <Typography
-              onClick={() => navigation.navigate(ScreenName.PRIVACYPOLICY)}
+              onClick={() => navigationWithDrawerClose.navigate(ScreenName.PRIVACYPOLICY)}
               sx={{
                 fontSize: '12px',
                 color: '#362828',
@@ -150,7 +164,7 @@ const SideMenu = (props: SideMenuProps) => {
             </Typography>
             <Typography sx={{ fontSize: '12px', color: '#DFE9E0' }}>|</Typography>
             <Typography
-              onClick={() => navigation.navigate(ScreenName.SECURITY)}
+              onClick={() => navigationWithDrawerClose.navigate(ScreenName.SECURITY)}
               sx={{
                 fontSize: '12px',
                 color: '#362828',
@@ -162,7 +176,7 @@ const SideMenu = (props: SideMenuProps) => {
             </Typography>
             <Typography sx={{ fontSize: '12px', color: '#DFE9E0' }}>|</Typography>
             <Typography
-              onClick={() => navigation.navigate(ScreenName.ABOUT_US)}
+              onClick={() => navigationWithDrawerClose.navigate(ScreenName.ABOUT_US)}
               sx={{
                 fontSize: '12px',
                 color: '#362828',

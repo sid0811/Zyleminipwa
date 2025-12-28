@@ -8,7 +8,7 @@ import {
   Checkbox,
   FormControlLabel,
 } from '@mui/material';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigationCompat, useRouteCompat } from '../../../../hooks/useNavigationCompat';
 import DashLine from '../../../CollectionModule/Components/DashLine';
 import {Colors} from '../../../../theme/colors';
 import {hp, wp, Dimen} from '../../../../utility/responsiveHelpers';
@@ -63,10 +63,19 @@ interface Props {
 
 const EditPartialDiscount1 = (props: Props) => {
   const {t} = useTranslation();
-  const navigation = useNavigation();
-  const route = useRoute();
-  const routeParams = props.route?.params || route.params || {};
+  const navigation = useNavigationCompat();
+  const route = useRouteCompat();
+  const routeParams = (props.route?.params || route.params || {}) as {
+    orderID?: string;
+    entityid?: string;
+    id?: number;
+  };
   const {orderID, entityid, id} = routeParams; // orderID, id
+  
+  // Type assertions for required params (will be validated at runtime)
+  const orderIDValue = orderID || '';
+  const idValue = id || 0;
+  
   console.log('orderID, id -->', orderID, id, entityid);
 
   const {savedOrderID} = useOrderAction();
@@ -159,7 +168,7 @@ const EditPartialDiscount1 = (props: Props) => {
     let tempData = [];
     // await db.getitemdataall(apporderid).then(data1 => {
     // await db.getRetrievedDiscountData(orderID).then(data1 => {
-    await getDiscountedData(orderID).then((data1: any) => {
+    await getDiscountedData(orderIDValue).then((data1: any) => {
       // console.log('getDiscountedData data 1 -->', data1);
 
       let filtered = data1.filter((disc: any) => disc.BrandCode != '');
@@ -221,7 +230,7 @@ const EditPartialDiscount1 = (props: Props) => {
   };
 
   const existingDiscount = async () => {
-    await getTABLE_DISCOUNTforEdit(id, orderID).then((dataa: any) => {
+    await getTABLE_DISCOUNTforEdit(idValue, orderIDValue).then((dataa: any) => {
       console.log('getTABLE_DISCOUNTforEdit--->', dataa);
       // dataa.map(el => {
       //     console.log('for edit map--->', el.Amount)
@@ -238,7 +247,7 @@ const EditPartialDiscount1 = (props: Props) => {
       setEditDiscount(dataa);
     });
 
-    await getDISCOUNTEDItemforEdit(id, orderID).then((dataa1: any) => {
+    await getDISCOUNTEDItemforEdit(idValue, orderIDValue).then((dataa1: any) => {
       console.log('getDISCOUNTEDItemforEdit--->', dataa1);
       let x: any = [];
       let y: any = [];
@@ -254,7 +263,7 @@ const EditPartialDiscount1 = (props: Props) => {
       setFlavourItems(z);
     });
 
-    await getDiscountedData(orderID).then((data1: any) => {
+    await getDiscountedData(orderIDValue).then((data1: any) => {
       // console.log('getDiscountedData data 1 -->', data1);
 
       let filtered = data1.filter((disc: any) => disc.BrandCode != '');
@@ -853,8 +862,8 @@ const EditPartialDiscount1 = (props: Props) => {
         discountON,
         product[0],
         SelectedDiscType,
-        orderID,
-        id,
+        orderIDValue,
+        idValue,
         checkAdd.totalSelectedCases ? checkAdd.totalSelectedCases : CSCount,
         checkAdd.totalBTLBySelection ? checkAdd.totalBTLBySelection : BTLCount,
         checkAdd.totalAmtBySelection ? checkAdd.totalAmtBySelection : AMTCount,
@@ -862,7 +871,7 @@ const EditPartialDiscount1 = (props: Props) => {
         checkAdd.btlConversion11 ? checkAdd.btlConversion11 : totalBTL,
       );
 
-      ApplyClickIF(orderID, id);
+      ApplyClickIF(orderIDValue, idValue);
     } else {
       // props.discAmt1(CalcNum)
       updateTABLE_DISCOUNT1(
@@ -883,8 +892,8 @@ const EditPartialDiscount1 = (props: Props) => {
         DiscountONQty,
         product[0],
         SelectedDiscType,
-        orderID,
-        id,
+        orderIDValue,
+        idValue,
         checkAdd.totalSelectedCases ? checkAdd.totalSelectedCases : CSCount,
         checkAdd.totalBTLBySelection ? checkAdd.totalBTLBySelection : BTLCount,
         checkAdd.totalAmtBySelection ? checkAdd.totalAmtBySelection : AMTCount,
@@ -892,7 +901,7 @@ const EditPartialDiscount1 = (props: Props) => {
         checkAdd.btlConversion11 ? checkAdd.btlConversion11 : totalBTL,
       );
 
-      ApplyClickElse(orderID, id);
+      ApplyClickElse(orderIDValue, idValue);
     }
 
     // amountss = 0;
@@ -922,7 +931,7 @@ const EditPartialDiscount1 = (props: Props) => {
           // )
           insertintoTABLE_TEMP_CategoryDiscountItem(
             id,
-            orderID,
+            orderIDValue,
             el.item_id,
             '',
             '',
@@ -935,7 +944,7 @@ const EditPartialDiscount1 = (props: Props) => {
           //console.log('dataa aaa-->', el.quantity_one);
           insertintoTABLE_TEMP_CategoryDiscountItem(
             id,
-            orderID,
+            orderIDValue,
             el.item_id,
             '',
             '',
@@ -948,7 +957,7 @@ const EditPartialDiscount1 = (props: Props) => {
           //  console.log('dataa aaa-->', el.quantity_one);
           insertintoTABLE_TEMP_CategoryDiscountItem(
             id,
-            orderID,
+            orderIDValue,
             el.item_id,
             '',
             '',
@@ -961,7 +970,7 @@ const EditPartialDiscount1 = (props: Props) => {
           console.log('dataa aaa-->', el.item_id);
           insertintoTABLE_TEMP_CategoryDiscountItem(
             id,
-            orderID,
+            orderIDValue,
             el.item_id,
             '',
             '',
@@ -984,7 +993,7 @@ const EditPartialDiscount1 = (props: Props) => {
         // console.log('dataa aaa-->', el.quantity_one);
         insertintoTABLE_TEMP_CategoryDiscountItem(
           id,
-          orderID,
+          orderIDValue,
           el.item_id,
           el.quantity_one,
           el.quantity_two,
@@ -997,7 +1006,7 @@ const EditPartialDiscount1 = (props: Props) => {
         // console.log('dataa aaa-->', el.quantity_one);
         insertintoTABLE_TEMP_CategoryDiscountItem(
           id,
-          orderID,
+          orderIDValue,
           el.item_id,
           el.quantity_one,
           el.quantity_two,
@@ -1010,7 +1019,7 @@ const EditPartialDiscount1 = (props: Props) => {
         //    console.log('dataa aaa-->', el.quantity_one);
         insertintoTABLE_TEMP_CategoryDiscountItem(
           id,
-          orderID,
+          orderIDValue,
           el.item_id,
           el.quantity_one,
           el.quantity_two,
@@ -1023,7 +1032,7 @@ const EditPartialDiscount1 = (props: Props) => {
         //  console.log('dataa aaa-->', el.quantity_one);
         insertintoTABLE_TEMP_CategoryDiscountItem(
           id,
-          orderID,
+          orderIDValue,
           el.item_id,
           el.quantity_one,
           el.quantity_two,
@@ -1202,8 +1211,8 @@ const EditPartialDiscount1 = (props: Props) => {
           discountON == 0 ? item.Rate : discountON,
           product.length > 0 ? product[0] : item.BrandCode,
           SelectedDiscType.length > 0 ? SelectedDiscType : item.DiscountOnType,
-          orderID,
-          id,
+          orderIDValue,
+          idValue,
           checkAdd.totalSelectedCases ? checkAdd.totalSelectedCases : CSCount,
           checkAdd.totalBTLBySelection
             ? checkAdd.totalBTLBySelection
@@ -1244,8 +1253,8 @@ const EditPartialDiscount1 = (props: Props) => {
           DiscountONQty == 0 ? item.Rate : DiscountONQty,
           product.length > 0 ? product[0] : item.BrandCode,
           SelectedDiscType.length > 0 ? SelectedDiscType : item.DiscountOnType,
-          orderID,
-          id,
+          orderIDValue,
+          idValue,
           checkAdd.totalSelectedCases ? checkAdd.totalSelectedCases : CSCount,
           checkAdd.totalBTLBySelection
             ? checkAdd.totalBTLBySelection
@@ -1282,8 +1291,8 @@ const EditPartialDiscount1 = (props: Props) => {
           DiscountONQty == 0 ? item.Rate : DiscountONQty,
           product.length > 0 ? product[0] : item.BrandCode,
           SelectedDiscType.length > 0 ? SelectedDiscType : item.DiscountOnType,
-          orderID,
-          id,
+          orderIDValue,
+          idValue,
           checkAdd.totalSelectedCases ? checkAdd.totalSelectedCases : CSCount,
           checkAdd.totalBTLBySelection
             ? checkAdd.totalBTLBySelection
@@ -1316,8 +1325,8 @@ const EditPartialDiscount1 = (props: Props) => {
           DiscountONQty == 0 ? item.Rate : DiscountONQty,
           product.length > 0 ? product[0] : item.BrandCode,
           SelectedDiscType.length > 0 ? SelectedDiscType : item.DiscountOnType,
-          orderID,
-          id,
+          orderIDValue,
+          idValue,
           checkAdd.totalSelectedCases ? checkAdd.totalSelectedCases : CSCount,
           checkAdd.totalBTLBySelection
             ? checkAdd.totalBTLBySelection
@@ -1357,8 +1366,8 @@ const EditPartialDiscount1 = (props: Props) => {
           DiscountONQty == 0 ? item.Rate : DiscountONQty,
           product.length > 0 ? product[0] : item.BrandCode,
           SelectedDiscType.length > 0 ? SelectedDiscType : item.DiscountOnType,
-          orderID,
-          id,
+          orderIDValue,
+          idValue,
           checkAdd.totalSelectedCases ? checkAdd.totalSelectedCases : CSCount,
           checkAdd.totalBTLBySelection
             ? checkAdd.totalBTLBySelection
@@ -1842,7 +1851,7 @@ const EditPartialDiscount1 = (props: Props) => {
                 <Box sx={{mt: 2}}>
                   <Button
                     onClick={() => {
-                      DeleteItem(id);
+                      DeleteItem(idValue);
                     }}
                     sx={styles.deleteBtnView}>
                     <Box

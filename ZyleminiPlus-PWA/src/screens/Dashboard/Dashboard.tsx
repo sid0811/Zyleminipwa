@@ -72,7 +72,7 @@ import useCheckAppStateCurrent from '../../hooks/useCheckAppStateCurrent';
 import { requestUserPermission } from '../../notifications/notificationsUtils';
 import TeamPerformanceReport from './ManagerDashboard/TeamPerformanceReport';
 import SideMenuList from '../SideMenu/SideMenuList';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigationCompat } from '../../hooks/useNavigationCompat';
 
 interface DashboardProps {
   navigation?: any;
@@ -82,7 +82,7 @@ interface DashboardProps {
 function Dashboard(props?: DashboardProps) {
   const { isNetConnected } = useNetInfo();
   const { appStateVisible } = useCheckAppStateCurrent();
-  const navigation = useNavigation();
+  const navigation = useNavigationCompat();
   const {
     syncFlag,
     isParentUser,

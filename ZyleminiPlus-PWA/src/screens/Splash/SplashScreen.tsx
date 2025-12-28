@@ -1,7 +1,7 @@
 // Web-adapted SplashScreen
 import React, { useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigationCompat } from '../../hooks/useNavigationCompat';
 import { ScreenName } from '../../constants/screenConstants';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useLoginAction } from '../../redux/actionHooks/useLoginAction';
@@ -16,7 +16,7 @@ import { NotificationKeys } from '../../constants/asyncStorageKeys';
 import { initDatabase } from '../../database/WebDatabase';
 
 const SplashScreen = () => {
-  const navigate = useNavigate();
+  const navigation = useNavigationCompat();
   const { t } = useTranslation();
   const { doAuth } = useAuthentication();
   const { enteredUserName, userPassword, deviceId, savedClientCode } = useLoginAction();
@@ -56,10 +56,10 @@ const SplashScreen = () => {
       const timer = setTimeout(() => {
         if (isLoggedin) {
           checkAndMigrateDatabase();
-          navigate('/dashboard'); // Web: Navigate to dashboard
+          navigation.navigate(ScreenName.DASHBOARD);
         } else {
           setIsSplashShown?.(true);
-          navigate('/login'); // Web: Navigate to login
+          navigation.navigate(ScreenName.LOGIN);
         }
       }, timeDelay);
       
@@ -67,7 +67,7 @@ const SplashScreen = () => {
     };
     
     handleNavigation();
-  }, [isLoggedin, navigate]);
+  }, [isLoggedin, navigation]);
 
   const checkAndMigrateDatabase = async () => {
     try {
@@ -79,9 +79,9 @@ const SplashScreen = () => {
       console.error('Error checking database version:', error);
       // Continue anyway
       if (isLoggedin) {
-        navigate('/dashboard');
+        navigation.navigate(ScreenName.DASHBOARD);
       } else {
-        navigate('/login');
+        navigation.navigate(ScreenName.LOGIN);
       }
     }
   };

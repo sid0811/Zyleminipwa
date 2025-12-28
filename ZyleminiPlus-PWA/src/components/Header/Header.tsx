@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigationCompat } from '../../hooks/useNavigationCompat';
 import { Colors } from '../../theme/colors';
 import { hp, wp } from '../../utility/responsiveHelpers';
 
@@ -15,7 +15,7 @@ interface HeaderProp {
 }
 
 const Header: React.FC<HeaderProp> = (props) => {
-  const nav = useNavigation();
+  const nav = useNavigationCompat();
   const {
     navigation = nav,
     title,

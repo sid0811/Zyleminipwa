@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { getTableDiscount } from '../../../../database/WebDatabaseHelpers';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigationCompat } from '../../../../hooks/useNavigationCompat';
 import { ScreenName } from '../../../../constants/screenConstants';
 
 interface Props {
@@ -23,7 +23,7 @@ function EditPartialPreview({
   navigation: navProp,
 }: Props) {
   const { t } = useTranslation();
-  const nav = useNavigation();
+  const nav = useNavigationCompat();
   const navigation = navProp || nav;
   const [data, setData] = useState<any[]>([]);
 

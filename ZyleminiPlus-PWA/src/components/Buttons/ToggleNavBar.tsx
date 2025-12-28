@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Box, Tabs, Tab, useMediaQuery, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigationCompat } from '../../hooks/useNavigationCompat';
 import { useGlobleAction } from '../../redux/actionHooks/useGlobalAction';
 import CustomSafeView from '../GlobalComponent/CustomSafeView';
 import Icon from '../Icon/Icon';
@@ -54,7 +54,7 @@ const ToggleNavBar: React.FC<ToggleNavBarProps> = ({
 }) => {
   const { getAccessControlSettings } = useGlobleAction();
   const { t } = useTranslation();
-  const navigation = useNavigation();
+  const navigation = useNavigationCompat();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));

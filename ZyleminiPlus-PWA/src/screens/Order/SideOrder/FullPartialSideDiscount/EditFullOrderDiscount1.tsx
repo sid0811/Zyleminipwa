@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogActions,
 } from '@mui/material';
-import {useNavigate, useLocation} from 'react-router-dom';
+import { useNavigationCompat, useRouteCompat } from '../../../../hooks/useNavigationCompat';
 import {
   deleteTABLE_DISCOUNT1,
   getDataDiscountMaster,
@@ -56,11 +56,19 @@ interface Props {
 
 const EditFullOrderDiscount1 = (props: Props) => {
   const {t} = useTranslation();
-  const navigation = useNavigation();
-  const route = useRoute();
-  const routeParams = props.route?.params || route.params || {};
+  const navigation = useNavigationCompat();
+  const route = useRouteCompat();
+  const routeParams = (props.route?.params || route.params || {}) as {
+    orderID?: string;
+    entityid?: string;
+    id?: number;
+  };
   const {orderID, entityid, id} = routeParams; // orderID, id
   console.log('props EditFullOrderDiscount side O-->', orderID, id);
+  
+  // Type assertions for required params (will be validated at runtime)
+  const orderIDValue = orderID || '';
+  const idValue = id || 0;
   const {savedOrderID} = useOrderAction();
   const {userId} = useLoginAction();
 
@@ -126,7 +134,7 @@ const EditFullOrderDiscount1 = (props: Props) => {
     let tempData = [];
     // await db.getitemdataall(apporderid).then(data1 => {
     // await db.getRetrievedDiscountData(orderID).then(data1 => {
-    await getDiscountedData(orderID).then((data1: any) => {
+    await getDiscountedData(orderIDValue).then((data1: any) => {
       // console.log('getDiscountedData data full-->', data1);
 
       let filtered = data1.filter((disc: any) => disc.BrandCode == '');
@@ -167,7 +175,7 @@ const EditFullOrderDiscount1 = (props: Props) => {
       setData(data1);
     });
 
-    await getTABLE_DISCOUNTforEdit(id, orderID).then((dataa: any) => {
+    await getTABLE_DISCOUNTforEdit(idValue, orderIDValue).then((dataa: any) => {
       console.log('getTABLE_DISCOUNTforEdit--->', dataa);
       setEditDiscount(dataa);
     });
@@ -677,7 +685,7 @@ const EditFullOrderDiscount1 = (props: Props) => {
   function DeleteItem(id: string | number) {
     console.log('item id for delete--->', id);
     deleteTABLE_DISCOUNT1(id);
-    navigate(-1);
+    navigation.goBack();
   }
 
   // console.log('selectDiscountFor-->', SelectedDiscFor);
@@ -720,8 +728,8 @@ const EditFullOrderDiscount1 = (props: Props) => {
           discountON == 0 ? item.Rate : discountON,
           product.length > 0 ? product[0] : item.BrandCode,
           SelectedDiscType.length > 0 ? SelectedDiscType : item.DiscountOnType,
-          orderID,
-          id,
+          orderIDValue,
+          idValue,
           checkAdd.totalCaseBySelection
             ? checkAdd.totalCaseBySelection
             : CSCount,
@@ -755,8 +763,8 @@ const EditFullOrderDiscount1 = (props: Props) => {
           DiscountONQty == 0 ? item.Rate : DiscountONQty,
           product.length > 0 ? product[0] : item.BrandCode,
           SelectedDiscType.length > 0 ? SelectedDiscType : item.DiscountOnType,
-          orderID,
-          id,
+          orderIDValue,
+          idValue,
           checkAdd.totalCaseBySelection
             ? checkAdd.totalCaseBySelection
             : CSCount,
@@ -783,8 +791,8 @@ const EditFullOrderDiscount1 = (props: Props) => {
           DiscountONQty == 0 ? item.Rate : DiscountONQty,
           product.length > 0 ? product[0] : item.BrandCode,
           SelectedDiscType.length > 0 ? SelectedDiscType : item.DiscountOnType,
-          orderID,
-          id,
+          orderIDValue,
+          idValue,
           checkAdd.totalCaseBySelection
             ? checkAdd.totalCaseBySelection
             : CSCount,
@@ -811,8 +819,8 @@ const EditFullOrderDiscount1 = (props: Props) => {
           DiscountONQty == 0 ? item.Rate : DiscountONQty,
           product.length > 0 ? product[0] : item.BrandCode,
           SelectedDiscType.length > 0 ? SelectedDiscType : item.DiscountOnType,
-          orderID,
-          id,
+          orderIDValue,
+          idValue,
           checkAdd.totalCaseBySelection
             ? checkAdd.totalCaseBySelection
             : CSCount,
@@ -842,8 +850,8 @@ const EditFullOrderDiscount1 = (props: Props) => {
           DiscountONQty == 0 ? item.Rate : DiscountONQty,
           product.length > 0 ? product[0] : item.BrandCode,
           SelectedDiscType.length > 0 ? SelectedDiscType : item.DiscountOnType,
-          orderID,
-          id,
+          orderIDValue,
+          idValue,
           checkAdd.totalCaseBySelection
             ? checkAdd.totalCaseBySelection
             : CSCount,
@@ -861,7 +869,7 @@ const EditFullOrderDiscount1 = (props: Props) => {
       setApplyFlag(false);
       setSelectedDiscFor('');
       setApplyChanged(false);
-      navigate(-1);
+      navigation.goBack();
     }
 
     let TotalQtyDisc = checkAdd.totalAmtBySelection
@@ -1332,7 +1340,7 @@ const EditFullOrderDiscount1 = (props: Props) => {
                   <Box sx={{mt: 2}}>
                     <Button
                       onClick={() => {
-                        DeleteItem(id);
+                        DeleteItem(idValue);
                       }}
                       sx={styles.deleteBtnView}>
                       <Box
@@ -1398,7 +1406,7 @@ const EditFullOrderDiscount1 = (props: Props) => {
 
           <Button
             onClick={() => {
-              navigate(-1);
+              navigation.goBack();
             }}>
             <Box sx={styles.cancelBtnContainer}>
               <Typography sx={styles.cancelBtnText}>
